@@ -6,7 +6,9 @@ use App\Repositories\CategoryRepository;
 use App\Repositories\ProductRepository;
 use App\Repositories\StockTransactionRepository;
 use App\Repositories\SupplierRepository;
+use App\Repositories\UserRepository;
 
+use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
@@ -39,6 +41,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             StockTransactionRepositoryInterface::class,
             StockTransactionRepository::class
+        );
+
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            UserRepository::class
         );
     }
 
