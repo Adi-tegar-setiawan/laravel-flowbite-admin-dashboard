@@ -17,4 +17,6 @@ interface StockTransactionRepositoryInterface
     public function delete(int $id);
 
     public function getCurrentStock(int $productId): int;
+
+    public function countToday(): int;
 }

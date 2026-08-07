@@ -64,4 +64,12 @@ class StockTransactionRepository implements StockTransactionRepositoryInterface
 
         return $stockIn - $stockOut;
     }
+
+    public function countToday(): int
+    {
+        return StockTransaction::whereDate(
+            'date',
+            Carbon::today()
+        )->count();
+    }
 }

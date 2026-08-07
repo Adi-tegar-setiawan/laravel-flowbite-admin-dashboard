@@ -49,6 +49,31 @@ class ProductRepository implements ProductRepositoryInterface
         ])->findOrFail($id);
     }
 
+    public function count(): int
+    {
+        return Product::count();
+    }
+
+    public function getLowStockProducts()
+    {
+        return Product::with('stockTransactions')
+            ->get()
+            ->filter(function ($product) {
+
+                $stockIn = $product->stockTransactions
+                    ->where('type', 'Masuk')
+                    ->where('status', 'Diterima')
+                    ->sum('quantity');
+
+                $stockOut = $product->stockTransactions
+                    ->where('type', 'Keluar')
+                    ->where('status', 'Dikeluarkan')
+                    ->sum('quantity');
+
+                return ($stockIn - $stockOut) <= $product->minimum_stock;
+            });
+    }
+
     public function create(array $data)
     {
         return Product::create($data);
