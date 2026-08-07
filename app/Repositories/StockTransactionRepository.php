@@ -49,4 +49,19 @@ class StockTransactionRepository implements StockTransactionRepositoryInterface
     {
         return $this->find($id)->delete();
     }
+
+    public function getCurrentStock(int $productId): int
+    {
+        $stockIn = StockTransaction::where('product_id', $productId)
+            ->where('type', 'Masuk')
+            ->where('status', 'Diterima')
+            ->sum('quantity');
+
+        $stockOut = StockTransaction::where('product_id', $productId)
+            ->where('type', 'Keluar')
+            ->where('status', 'Dikeluarkan')
+            ->sum('quantity');
+
+        return $stockIn - $stockOut;
+    }
 }
