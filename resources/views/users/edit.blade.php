@@ -1,0 +1,123 @@
+@extends('layouts.dashboard')
+
+@section('content')
+    <div class="p-6">
+
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                Edit Pengguna
+            </h1>
+
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Perbarui informasi pengguna.
+            </p>
+        </div>
+
+        @if ($errors->any())
+            <div class="p-4 mb-6 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
+
+            <form action="{{ route('users.update', $user->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+
+                    {{-- Name --}}
+                    <div>
+                        <label for="name"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Nama Lengkap
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value="{{ old('name', $user->name) }}"
+                            required
+                            maxlength="255"
+                            class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+
+                    {{-- Email --}}
+                    <div>
+                        <label for="email"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value="{{ old('email', $user->email) }}"
+                            required
+                            class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+
+                    {{-- Role --}}
+                    <div>
+                        <label for="role"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Role
+                        </label>
+
+                        <select
+                            id="role"
+                            name="role"
+                            required
+                            class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="Admin" {{ old('role', $user->role) == 'Admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="Manajer Gudang" {{ old('role', $user->role) == 'Manajer Gudang' ? 'selected' : '' }}>Manajer Gudang</option>
+                            <option value="Staff Gudang" {{ old('role', $user->role) == 'Staff Gudang' ? 'selected' : '' }}>Staff Gudang</option>
+                        </select>
+                    </div>
+
+                    {{-- Password Optional --}}
+                    <div>
+                        <label for="password"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Password (Opsional)
+                        </label>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Kosongkan jika tidak ingin merubah"
+                            class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+
+                </div>
+
+                {{-- Buttons --}}
+                <div class="flex items-center gap-3 mt-6">
+
+                    <button
+                        type="submit"
+                        class="px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300">
+                        Simpan Perubahan
+                    </button>
+
+                    <a
+                        href="{{ route('users.index') }}"
+                        class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300">
+                        Batal
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+@endsection
