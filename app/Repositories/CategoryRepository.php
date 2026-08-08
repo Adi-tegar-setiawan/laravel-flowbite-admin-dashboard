@@ -35,4 +35,9 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return $this->find($id)->delete();
     }
+
+    public function paginate(int $perPage = 10)
+    {
+        return Category::latest()->paginate($perPage);
+    }
 }
