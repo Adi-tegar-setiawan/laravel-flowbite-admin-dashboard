@@ -18,5 +18,15 @@ interface StockTransactionRepositoryInterface
 
     public function getCurrentStock(int $productId): int;
 
+    public function getByProduct(int $productId);
+
     public function countToday(): int;
+
+    public function countStockInToday(): int;
+
+    public function countStockOutToday(): int;
+
+    public function getTransactionChartData(int $days = 7);
+
+    public function getRecentTransactions(int $limit = 5);
 }

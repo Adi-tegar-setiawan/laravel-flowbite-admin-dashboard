@@ -8,7 +8,11 @@ use App\Repositories\StockTransactionRepository;
 use App\Repositories\SupplierRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\ProductAttributeRepository;
+use App\Repositories\StockOpnameRepository;
+use App\Repositories\ActivityLogRepository;
 
+use App\Repositories\Interfaces\ActivityLogRepositoryInterface;
+use App\Repositories\Interfaces\StockOpnameRepositoryInterface;
 use App\Repositories\Interfaces\ProductAttributeRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
@@ -53,6 +57,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProductAttributeRepositoryInterface::class,
             ProductAttributeRepository::class
+        );
+
+        $this->app->bind(
+            StockOpnameRepositoryInterface::class,
+            StockOpnameRepository::class
+        );
+
+        $this->app->bind(
+            ActivityLogRepositoryInterface::class,
+            ActivityLogRepository::class
         );
     }
 

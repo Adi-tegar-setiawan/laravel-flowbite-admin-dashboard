@@ -6,12 +6,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
+use App\Services\ActivityLogService;
 
 class StockTransactionService
 {
     public function __construct(
         protected StockTransactionRepositoryInterface $transactionRepository,
-        protected ProductRepositoryInterface $productRepository
+        protected ProductRepositoryInterface $productRepository,
+        protected ActivityLogService $activityLogService
     ) {
     }
 
@@ -41,7 +43,27 @@ class StockTransactionService
                 }
             }
 
-            return $this->transactionRepository->create($data);
+            $transaction = $this->transactionRepository->create($data);
+
+            $this->activityLogService->log(
+                'created',
+                'Membuat transaksi stok ' .
+                $transaction->type .
+                ' untuk produk ' .
+                ($transaction->product?->name ?? '#' . $transaction->product_id) .
+                ' sebanyak ' .
+                $transaction->quantity,
+                'StockTransaction',
+                $transaction->id,
+                [
+                    'product_id' => $transaction->product_id,
+                    'type' => $transaction->type,
+                    'quantity' => $transaction->quantity,
+                    'status' => $transaction->status,
+                ]
+            );
+
+            return $transaction;
         });
     }
 
@@ -108,7 +130,22 @@ class StockTransactionService
                 }
             }
 
-            return $this->transactionRepository->update($id, $data);
+            $transaction = $this->transactionRepository->update($id, $data);
+
+            $this->activityLogService->log(
+                'updated',
+                'Memperbarui transaksi stok #' . $id,
+                'StockTransaction',
+                $id,
+                [
+                    'product_id' => $data['product_id'],
+                    'type' => $data['type'],
+                    'quantity' => $data['quantity'],
+                    'status' => $data['status'],
+                ]
+            );
+
+            return $transaction;
         });
     }
 
@@ -119,7 +156,24 @@ class StockTransactionService
     {
         return DB::transaction(function () use ($id) {
 
-            return $this->transactionRepository->delete($id);
+            $transaction = $this->transactionRepository->find($id);
+
+            $this->transactionRepository->delete($id);
+
+            $this->activityLogService->log(
+                'deleted',
+                'Menghapus transaksi stok #' . $id,
+                'StockTransaction',
+                $id,
+                [
+                    'product_id' => $transaction->product_id,
+                    'type' => $transaction->type,
+                    'quantity' => $transaction->quantity,
+                    'status' => $transaction->status,
+                ]
+            );
+
+            return $transaction;
         });
     }
 

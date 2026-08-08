@@ -71,10 +71,36 @@
                                         {{ $product->supplier?->name ?? '-' }}
                                     </div>
 
-                                    <div class="mt-2 font-medium text-gray-900 dark:text-white">
-                                        Rp {{ number_format($product->selling_price, 0, ',', '.') }}
+                                    <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                                        Stok Saat Ini:
+                                        <span class="font-semibold text-gray-900 dark:text-white">
+                                            {{ $product->currentStock }}
+                                        </span>
                                     </div>
-                                </div>
+
+                                    <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                        Stok Minimum:
+                                        <span class="font-semibold text-gray-900 dark:text-white">
+                                            {{ $product->minimum_stock }}
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        @if ($product->currentStock <= $product->minimum_stock)
+                                            <span class="px-2.5 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full dark:bg-red-900 dark:text-red-300">
+                                                Stok Rendah
+                                            </span>
+                                        @else
+                                            <span class="px-2.5 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full dark:bg-green-900 dark:text-green-300">
+                                                Stok Aman
+                                            </span>
+                                        @endif
+                                    </div>
+
+    <div class="mt-2 font-medium text-gray-900 dark:text-white">
+        Rp {{ number_format($product->selling_price, 0, ',', '.') }}
+    </div>
+</div>
 
                                 {{-- Tombol Aksi (Detail, Edit, Delete) --}}
                                 <div class="flex items-center gap-2">

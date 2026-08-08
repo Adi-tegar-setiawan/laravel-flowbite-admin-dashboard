@@ -30,4 +30,14 @@
         title="Transactions"
     />
 
+    <x-sidebar-menu-dashboard
+    routeName="stock-opnames.index"
+    title="Stock Opname"
+    />
+
+    <x-sidebar-menu-dashboard
+    routeName="transactions.index"
+    title="Transactions"
+    />
+
 </x-sidebar-dashboard>

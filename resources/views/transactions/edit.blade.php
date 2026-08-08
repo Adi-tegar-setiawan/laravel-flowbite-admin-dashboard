@@ -147,7 +147,8 @@
 
                     <a
                         href="{{ route('transactions.index') }}"
-                        class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300">
+                        class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300"
+                    >
                         Batal
                     </a>
 

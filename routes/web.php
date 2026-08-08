@@ -10,6 +10,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockTransactionController;
+use App\Http\Controllers\StockOpnameController;
+use App\Http\Controllers\ActivityLogController;
 
 
 /*
@@ -130,12 +132,17 @@ Route::middleware([
         'update'
     ])->name('products.attributes.update');
 
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])
+    ->name('activity-logs.index');
+
 
     /*
     |--------------------------------------------------------------------------
     | Transactions - Admin Full Access
     |--------------------------------------------------------------------------
     */
+    Route::resource('stock-opnames', StockOpnameController::class)
+    ->except(['show']);
 
     Route::resource('transactions', StockTransactionController::class)
         ->except(['show']);

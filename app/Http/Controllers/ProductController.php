@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Repositories\Interfaces\SupplierRepositoryInterface;
+use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,7 +15,8 @@ class ProductController extends Controller
     public function __construct(
         protected ProductRepositoryInterface $productRepository,
         protected CategoryRepositoryInterface $categoryRepository,
-        protected SupplierRepositoryInterface $supplierRepository
+        protected SupplierRepositoryInterface $supplierRepository,
+        protected StockTransactionRepositoryInterface $stockTransactionRepository,
     ) {
     }
 
@@ -28,6 +30,13 @@ class ProductController extends Controller
         $products = $this->productRepository
             ->search($keyword, 10);
 
+        $products->getCollection()->transform(function ($product) {
+            $product->currentStock = $this->stockTransactionRepository
+                ->getCurrentStock($product->id);
+
+            return $product;
+        });
+
         return view('products.index', compact('products'));
     }
 
@@ -38,7 +47,17 @@ class ProductController extends Controller
     {
         $product = $this->productRepository->find($id);
 
-        return view('products.show', compact('product'));
+        $currentStock = $this->stockTransactionRepository
+            ->getCurrentStock($product->id);
+
+        $stockHistory = $this->stockTransactionRepository
+            ->getByProduct($product->id);
+
+        return view('products.show', compact(
+            'product',
+            'currentStock',
+            'stockHistory'
+        ));
     }
 
     /**
