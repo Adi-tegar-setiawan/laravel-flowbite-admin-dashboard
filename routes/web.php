@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductAttributeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
@@ -102,6 +103,32 @@ Route::middleware([
             'update',
             'destroy'
         ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Product Attributes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/products/{productId}/attributes', [
+        ProductAttributeController::class,
+        'store'
+    ])->name('products.attributes.store');
+
+    Route::delete('/products/{productId}/attributes/{attributeId}', [
+        ProductAttributeController::class,
+        'destroy'
+    ])->name('products.attributes.destroy');
+
+    Route::get('/products/{productId}/attributes/{attributeId}/edit', [
+        ProductAttributeController::class,
+        'edit'
+    ])->name('products.attributes.edit');
+
+    Route::put('/products/{productId}/attributes/{attributeId}', [
+        ProductAttributeController::class,
+        'update'
+    ])->name('products.attributes.update');
 
 
     /*

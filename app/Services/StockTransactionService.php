@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
 
@@ -25,16 +25,19 @@ class StockTransactionService
             // Pastikan produk ada
             $this->productRepository->find($data['product_id']);
 
-            // Validasi stok jika transaksi keluar
-            if ($data['type'] === 'Keluar') {
-
+            // Transaksi keluar yang benar-benar dikeluarkan
+            // tidak boleh melebihi stok tersedia.
+            if (
+                $data['type'] === 'Keluar'
+                && $data['status'] === 'Dikeluarkan'
+            ) {
                 $currentStock = $this->transactionRepository
                     ->getCurrentStock($data['product_id']);
 
                 if ($data['quantity'] > $currentStock) {
-                    throw new Exception(
-                        'Stok tidak mencukupi untuk melakukan transaksi.'
-                    );
+                    throw ValidationException::withMessages([
+                        'quantity' => 'Stok tidak mencukupi untuk melakukan transaksi.',
+                    ]);
                 }
             }
 
@@ -43,28 +46,99 @@ class StockTransactionService
     }
 
     /**
-     * Mengubah transaksi.
+     * Mengubah transaksi stok.
      */
     public function update(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
 
-            return $this->transactionRepository
-                ->update($id, $data);
+            // Ambil transaksi lama
+            $oldTransaction = $this->transactionRepository->find($id);
 
+            // Pastikan produk baru ada
+            $this->productRepository->find($data['product_id']);
+
+            /*
+             * Jika transaksi lama mempengaruhi stok,
+             * keluarkan dulu efek transaksi lama dari stok.
+             */
+            $oldEffect = $this->getStockEffect(
+                $oldTransaction->type,
+                $oldTransaction->status,
+                $oldTransaction->quantity
+            );
+
+            /*
+             * Jika product_id tidak berubah:
+             *
+             * current stock masih mengandung transaksi lama.
+             * Maka kita kembalikan efek transaksi lama terlebih dahulu.
+             */
+            if ($oldTransaction->product_id == $data['product_id']) {
+
+                $availableStock =
+                    $this->transactionRepository
+                        ->getCurrentStock($data['product_id'])
+                    - $oldEffect;
+
+            } else {
+
+                /*
+                 * Jika product berubah, stok product baru
+                 * tidak mengandung transaksi lama.
+                 */
+                $availableStock =
+                    $this->transactionRepository
+                        ->getCurrentStock($data['product_id']);
+            }
+
+            /*
+             * Transaksi keluar baru harus diperiksa
+             * terhadap stok yang tersedia setelah transaksi lama
+             * dikeluarkan dari perhitungan.
+             */
+            if (
+                $data['type'] === 'Keluar'
+                && $data['status'] === 'Dikeluarkan'
+            ) {
+                if ($data['quantity'] > $availableStock) {
+                    throw ValidationException::withMessages([
+                        'quantity' => 'Stok tidak mencukupi untuk transaksi keluar.',
+                    ]);
+                }
+            }
+
+            return $this->transactionRepository->update($id, $data);
         });
     }
 
     /**
-     * Menghapus transaksi.
+     * Menghapus transaksi stok.
      */
     public function delete(int $id)
     {
         return DB::transaction(function () use ($id) {
 
-            return $this->transactionRepository
-                ->delete($id);
-
+            return $this->transactionRepository->delete($id);
         });
+    }
+
+    /**
+     * Menghitung efek transaksi terhadap stok.
+     */
+    private function getStockEffect(
+        string $type,
+        string $status,
+        int $quantity
+    ): int {
+        if ($type === 'Masuk' && $status === 'Diterima') {
+            return $quantity;
+        }
+
+        if ($type === 'Keluar' && $status === 'Dikeluarkan') {
+            return -$quantity;
+        }
+
+        return 0;
     }
 }

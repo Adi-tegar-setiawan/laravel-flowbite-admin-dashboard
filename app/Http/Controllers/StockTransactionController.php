@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\StockTransactionService;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
+use Illuminate\Validation\ValidationException;
 
 class StockTransactionController extends Controller
 {
@@ -50,7 +51,26 @@ class StockTransactionController extends Controller
             'notes' => ['nullable'],
         ]);
 
+        if (
+            $validated['type'] === 'Keluar'
+            && $validated['status'] !== 'Dikeluarkan'
+        ) {
+            throw ValidationException::withMessages([
+                'status' => 'Transaksi barang keluar harus memiliki status Dikeluarkan.',
+            ]);
+        }
+
+        if (
+            $validated['type'] === 'Masuk'
+            && $validated['status'] === 'Dikeluarkan'
+        ) {
+            throw ValidationException::withMessages([
+                'status' => 'Transaksi barang masuk tidak dapat memiliki status Dikeluarkan.',
+            ]);
+        }
+
         $validated['user_id'] = auth()->id();
+
 
         $this->transactionService->create($validated);
 
@@ -83,6 +103,24 @@ class StockTransactionController extends Controller
             'status' => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
             'notes' => ['nullable'],
         ]);
+
+        if (
+            $validated['type'] === 'Keluar'
+            && $validated['status'] !== 'Dikeluarkan'
+        ) {
+            throw ValidationException::withMessages([
+                'status' => 'Transaksi barang keluar harus memiliki status Dikeluarkan.',
+            ]);
+        }
+
+        if (
+            $validated['type'] === 'Masuk'
+            && $validated['status'] === 'Dikeluarkan'
+        ) {
+            throw ValidationException::withMessages([
+                'status' => 'Transaksi barang masuk tidak dapat memiliki status Dikeluarkan.',
+            ]);
+        }
 
         $this->transactionService->update($id, $validated);
 
