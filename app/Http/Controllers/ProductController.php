@@ -7,6 +7,7 @@ use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use App\Repositories\Interfaces\SupplierRepositoryInterface;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -64,9 +65,13 @@ class ProductController extends Controller
             'description' => ['nullable'],
             'purchase_price' => ['required', 'numeric'],
             'selling_price' => ['required', 'numeric'],
-            'image' => ['nullable', 'image'],
+            'image' => ['nullable', 'image', 'max:2048'],
             'minimum_stock' => ['required', 'integer', 'min:0'],
         ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $this->productRepository->create($validated);
 
@@ -96,18 +101,26 @@ class ProductController extends Controller
             'category_id' => ['required', 'exists:categories,id'],
             'supplier_id' => ['required', 'exists:suppliers,id'],
             'name' => ['required', 'max:255'],
-
             'sku' => [
                 'required',
                 Rule::unique('products')->ignore($id),
             ],
-
             'description' => ['nullable'],
             'purchase_price' => ['required', 'numeric'],
             'selling_price' => ['required', 'numeric'],
-            'image' => ['nullable', 'image'],
+            'image' => ['nullable', 'image', 'max:2048'],
             'minimum_stock' => ['required', 'integer', 'min:0'],
         ]);
+
+        $product = $this->productRepository->find($id);
+
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama jika ada
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $validated['image'] = $request->file('image')->store('products', 'public');
+        }
 
         $this->productRepository->update($id, $validated);
 
@@ -121,6 +134,13 @@ class ProductController extends Controller
      */
     public function destroy(int $id)
     {
+        $product = $this->productRepository->find($id);
+
+        // Hapus file gambar dari storage
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
         $this->productRepository->delete($id);
 
         return redirect()
