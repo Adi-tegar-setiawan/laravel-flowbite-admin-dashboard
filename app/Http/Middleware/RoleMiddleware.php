@@ -16,11 +16,11 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         if (!auth()->check()) {
-            abort(401, 'Silakan login terlebih dahulu');
+            return redirect()->route('login');
         }
 
         if (!in_array(auth()->user()->role, $roles)) {
-            abort(403, 'Anda tidak memiliki hak akses.');
+            abort(403, 'Anda tidak memiliki hak akses ke halaman ini.');
         }
 
         return $next($request);

@@ -31,6 +31,16 @@ class ProductController extends Controller
     }
 
     /**
+     * Menampilkan detail produk.
+     */
+    public function show(int $id)
+    {
+        $product = $this->productRepository->find($id);
+
+        return view('products.show', compact('product'));
+    }
+
+    /**
      * Menampilkan form tambah produk.
      */
     public function create()

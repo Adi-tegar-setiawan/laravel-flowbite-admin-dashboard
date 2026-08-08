@@ -13,7 +13,7 @@ use App\Http\Controllers\StockTransactionController;
 
 /*
 |--------------------------------------------------------------------------
-| Guest
+| Guest Routes
 |--------------------------------------------------------------------------
 */
 
@@ -30,7 +30,7 @@ Route::middleware('guest')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authenticated
+| Authenticated Routes
 |--------------------------------------------------------------------------
 */
 
@@ -55,13 +55,63 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:Admin'])->group(function () {
+Route::middleware([
+    'auth',
+    'role:Admin'
+])->group(function () {
 
-    Route::resource('users', UserController::class)->except(['show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Users
+    |--------------------------------------------------------------------------
+    */
 
-    Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('users', UserController::class)
+        ->except(['show']);
 
-    Route::resource('suppliers', SupplierController::class)->except(['show']);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Categories
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('categories', CategoryController::class)
+        ->except(['show']);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Suppliers - Admin CRUD
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('suppliers', SupplierController::class)
+        ->except(['show']);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Products - Admin Update/Delete
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('products', ProductController::class)
+        ->only([
+            'edit',
+            'update',
+            'destroy'
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Transactions - Admin Full Access
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('transactions', StockTransactionController::class)
+        ->except(['show']);
 
 });
 
@@ -77,13 +127,36 @@ Route::middleware([
     'role:Admin,Manajer Gudang'
 ])->group(function () {
 
-    Route::resource('products', ProductController::class)->except(['show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Suppliers - View Only
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/suppliers', [SupplierController::class, 'index'])
+        ->name('suppliers.index');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Products - View & Create
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('products', ProductController::class)
+        ->only([
+            'index',
+            'create',
+            'store',
+            'show'
+        ]);
 
 });
 
+
 /*
 |--------------------------------------------------------------------------
-| Admin + Manajer + Staff
+| Admin + Manajer Gudang + Staff Gudang
 |--------------------------------------------------------------------------
 */
 
@@ -92,10 +165,46 @@ Route::middleware([
     'role:Admin,Manajer Gudang,Staff Gudang'
 ])->group(function () {
 
-    Route::resource(
-        'transactions',
-        StockTransactionController::class
-    )->except(['show']);
+    /*
+    |--------------------------------------------------------------------------
+    | Transactions - View
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/transactions', [
+        StockTransactionController::class,
+        'index'
+    ])->name('transactions.index');
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Manajer Gudang
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth',
+    'role:Manajer Gudang'
+])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Transactions - Create
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/transactions/create', [
+        StockTransactionController::class,
+        'create'
+    ])->name('transactions.create');
+
+    Route::post('/transactions', [
+        StockTransactionController::class,
+        'store'
+    ])->name('transactions.store');
 
 });
 /*
