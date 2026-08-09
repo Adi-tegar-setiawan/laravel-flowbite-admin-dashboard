@@ -11,7 +11,7 @@
         </h1>
 
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Riwayat aktivitas pengguna dalam sistem Stockify.
+            Riwayat aktivitas pengguna di dalam sistem Stockify.
         </p>
     </div>
 
@@ -19,78 +19,137 @@
     {{-- Activity List --}}
     <div class="bg-white rounded-lg shadow dark:bg-gray-800">
 
-        <div class="p-6">
+        <div class="p-4">
 
-            @if ($activities->count())
+            @if ($activities->isNotEmpty())
 
-                <div class="space-y-4">
+                <div class="overflow-x-auto">
 
-                    @foreach ($activities as $activity)
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 
-                        <div class="flex gap-4 p-4 border rounded-lg dark:border-gray-700">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
 
-                            {{-- Icon --}}
-                            <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900">
+                            <tr>
 
-                                <span class="text-blue-600 dark:text-blue-300">
-                                    ✓
-                                </span>
+                                <th class="px-6 py-3">
+                                    User
+                                </th>
 
-                            </div>
+                                <th class="px-6 py-3">
+                                    Aktivitas
+                                </th>
+
+                                <th class="px-6 py-3">
+                                    Deskripsi
+                                </th>
+
+                                <th class="px-6 py-3">
+                                    Waktu
+                                </th>
+
+                                <th class="px-6 py-3 text-right">
+                                    Aksi
+                                </th>
+
+                            </tr>
+
+                        </thead>
 
 
-                            {{-- Content --}}
-                            <div class="flex-1">
+                        <tbody>
 
-                                <div class="flex items-center justify-between gap-4">
+                            @foreach ($activities as $activity)
 
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white">
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+
+                                    {{-- User --}}
+                                    <td class="px-6 py-4">
+
+                                        <div class="font-medium text-gray-900 dark:text-white">
+                                            {{ $activity->user?->name ?? 'System' }}
+                                        </div>
+
+                                    </td>
+
+
+                                    {{-- Action --}}
+                                    <td class="px-6 py-4">
+
+                                        @if ($activity->action === 'created')
+
+                                            <span class="px-2.5 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                                                Created
+                                            </span>
+
+                                        @elseif ($activity->action === 'updated')
+
+                                            <span class="px-2.5 py-1 text-xs font-medium text-amber-800 bg-amber-100 rounded-full">
+                                                Updated
+                                            </span>
+
+                                        @elseif ($activity->action === 'deleted')
+
+                                            <span class="px-2.5 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                                                Deleted
+                                            </span>
+
+                                        @else
+
+                                            <span class="px-2.5 py-1 text-xs font-medium text-gray-800 bg-gray-100 rounded-full">
+                                                {{ ucfirst($activity->action) }}
+                                            </span>
+
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- Description --}}
+                                    <td class="px-6 py-4 text-gray-700 dark:text-gray-300">
+
                                         {{ $activity->description }}
-                                    </p>
 
-                                    <span class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                        {{ $activity->created_at->format('d M Y H:i') }}
-                                    </span>
-
-                                </div>
+                                    </td>
 
 
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    {{-- Time --}}
+                                    <td class="px-6 py-4 whitespace-nowrap">
 
-                                    Oleh:
-                                    <span class="font-medium">
-                                        {{ $activity->user?->name ?? 'System' }}
-                                    </span>
+                                        {{ $activity->created_at->format('d/m/Y H:i') }}
 
-                                </p>
+                                    </td>
 
 
-                                <span class="inline-block px-2.5 py-1 mt-2 text-xs font-medium rounded-full
-                                    bg-blue-100 text-blue-800
-                                    dark:bg-blue-900 dark:text-blue-300">
+                                    {{-- Detail --}}
+                                    <td class="px-6 py-4 text-right">
 
-                                    {{ ucfirst($activity->action) }}
+                                        <a
+                                            href="{{ route('activity-logs.show', $activity->id) }}"
+                                            class="font-medium text-blue-600 hover:underline"
+                                        >
+                                            Detail
+                                        </a>
 
-                                </span>
+                                    </td>
 
-                            </div>
+                                </tr>
 
-                        </div>
+                            @endforeach
 
-                    @endforeach
+                        </tbody>
 
-                </div>
+                    </table>
 
-
-                {{-- Pagination --}}
-                <div class="mt-6">
-                    {{ $activities->links() }}
                 </div>
 
             @else
 
-                <div class="p-4 text-sm text-gray-500 bg-gray-50 rounded-lg dark:bg-gray-700 dark:text-gray-400">
-                    Belum ada aktivitas.
+                <div class="p-6 text-center">
+
+                    <p class="text-gray-500 dark:text-gray-400">
+                        Belum ada aktivitas yang tercatat.
+                    </p>
+
                 </div>
 
             @endif

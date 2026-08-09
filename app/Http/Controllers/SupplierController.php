@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\SupplierRepositoryInterface;
+use App\Services\ActivityLogService;
 
 class SupplierController extends Controller
 {
     public function __construct(
-        protected SupplierRepositoryInterface $supplierRepository
+        protected SupplierRepositoryInterface $supplierRepository,
+        protected ActivityLogService $activityLogService
     ) {
     }
 
@@ -42,7 +44,21 @@ class SupplierController extends Controller
             'email'   => ['nullable', 'email'],
         ]);
 
-        $this->supplierRepository->create($validated);
+        $supplier = $this->supplierRepository->create($validated);
+
+        // Activity Log
+        $this->activityLogService->log(
+            action: 'CREATE',
+            description: 'Menambahkan supplier baru "' . $supplier->name . '"',
+            subjectType: 'Supplier',
+            subjectId: $supplier->id,
+            properties: [
+                'name' => $supplier->name,
+                'address' => $supplier->address,
+                'phone' => $supplier->phone,
+                'email' => $supplier->email,
+            ]
+        );
 
         return redirect()
             ->route('suppliers.index')
@@ -71,7 +87,34 @@ class SupplierController extends Controller
             'email'   => ['nullable', 'email'],
         ]);
 
+        // Ambil data sebelum update
+        $supplier = $this->supplierRepository->find($id);
+
+        $oldData = [
+            'name' => $supplier->name,
+            'address' => $supplier->address,
+            'phone' => $supplier->phone,
+            'email' => $supplier->email,
+        ];
+
         $this->supplierRepository->update($id, $validated);
+
+        // Activity Log
+        $this->activityLogService->log(
+            action: 'UPDATE',
+            description: 'Mengubah supplier "' . $supplier->name . '"',
+            subjectType: 'Supplier',
+            subjectId: $supplier->id,
+            properties: [
+                'old' => $oldData,
+                'new' => [
+                    'name' => $validated['name'],
+                    'address' => $validated['address'] ?? null,
+                    'phone' => $validated['phone'] ?? null,
+                    'email' => $validated['email'] ?? null,
+                ],
+            ]
+        );
 
         return redirect()
             ->route('suppliers.index')
@@ -83,7 +126,26 @@ class SupplierController extends Controller
      */
     public function destroy(int $id)
     {
+        // Ambil data sebelum dihapus
+        $supplier = $this->supplierRepository->find($id);
+
+        $supplierData = [
+            'name' => $supplier->name,
+            'address' => $supplier->address,
+            'phone' => $supplier->phone,
+            'email' => $supplier->email,
+        ];
+
         $this->supplierRepository->delete($id);
+
+        // Activity Log
+        $this->activityLogService->log(
+            action: 'DELETE',
+            description: 'Menghapus supplier "' . $supplier->name . '"',
+            subjectType: 'Supplier',
+            subjectId: $supplier->id,
+            properties: $supplierData
+        );
 
         return redirect()
             ->route('suppliers.index')

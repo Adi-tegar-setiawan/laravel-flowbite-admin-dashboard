@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\ActivityLogController;
+use App\Services\ActivityLogService;
 
 
 /*
@@ -132,8 +133,23 @@ Route::middleware([
         'update'
     ])->name('products.attributes.update');
 
+    Route::get('/test-activity-log', function (ActivityLogService $activityLogService) {
+        $activityLogService->log(
+            action: 'test',
+            description: 'Admin melakukan test Activity Log.',
+            properties: [
+                'source' => 'manual-test',
+            ]
+        );
+
+        return 'Activity Log berhasil dibuat.';
+    });
+
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-    ->name('activity-logs.index');
+        ->name('activity-logs.index');
+
+    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])
+        ->name('activity-logs.show');
 
 
     /*

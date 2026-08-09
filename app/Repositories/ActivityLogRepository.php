@@ -14,11 +14,12 @@ class ActivityLogRepository implements ActivityLogRepositoryInterface
             ->get();
     }
 
-    public function paginate(int $perPage = 15)
+    public function latest(int $limit = 10)
     {
         return ActivityLog::with('user')
             ->latest()
-            ->paginate($perPage);
+            ->limit($limit)
+            ->get();
     }
 
     public function create(array $data)
@@ -26,11 +27,8 @@ class ActivityLogRepository implements ActivityLogRepositoryInterface
         return ActivityLog::create($data);
     }
 
-    public function getLatest(int $limit = 10)
+    public function find(int $id)
     {
-        return ActivityLog::with('user')
-            ->latest()
-            ->limit($limit)
-            ->get();
+        return ActivityLog::with('user')->findOrFail($id);
     }
 }

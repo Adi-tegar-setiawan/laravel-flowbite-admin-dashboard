@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Interfaces\ActivityLogRepositoryInterface;
+use Illuminate\Support\Facades\Auth;
 
 class ActivityLogService
 {
@@ -16,10 +17,11 @@ class ActivityLogService
         string $description,
         ?string $subjectType = null,
         ?int $subjectId = null,
-        ?array $properties = null
+        ?array $properties = null,
+        ?int $userId = null
     ) {
         return $this->repository->create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId ?? Auth::id(),
             'action' => $action,
             'subject_type' => $subjectType,
             'subject_id' => $subjectId,
@@ -30,11 +32,16 @@ class ActivityLogService
 
     public function latest(int $limit = 10)
     {
-        return $this->repository->getLatest($limit);
+        return $this->repository->latest($limit);
     }
 
-    public function paginate(int $perPage = 15)
+    public function all()
     {
-        return $this->repository->paginate($perPage);
+        return $this->repository->all();
+    }
+
+    public function find(int $id)
+    {
+        return $this->repository->find($id);
     }
 }

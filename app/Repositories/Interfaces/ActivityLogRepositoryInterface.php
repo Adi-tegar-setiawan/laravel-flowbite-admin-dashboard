@@ -6,9 +6,9 @@ interface ActivityLogRepositoryInterface
 {
     public function all();
 
-    public function paginate(int $perPage = 15);
+    public function latest(int $limit = 10);
 
     public function create(array $data);
 
-    public function getLatest(int $limit = 10);
+    public function find(int $id);
 }

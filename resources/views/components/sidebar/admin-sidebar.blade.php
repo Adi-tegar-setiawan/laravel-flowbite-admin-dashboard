@@ -36,8 +36,8 @@
     />
 
     <x-sidebar-menu-dashboard
-    routeName="transactions.index"
-    title="Transactions"
+        routeName="activity-logs.index"
+        title="Activity Log"
     />
 
 </x-sidebar-dashboard>

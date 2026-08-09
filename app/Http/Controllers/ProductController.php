@@ -9,6 +9,7 @@ use App\Repositories\Interfaces\SupplierRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ActivityLogService;
 
 class ProductController extends Controller
 {
@@ -17,6 +18,7 @@ class ProductController extends Controller
         protected CategoryRepositoryInterface $categoryRepository,
         protected SupplierRepositoryInterface $supplierRepository,
         protected StockTransactionRepositoryInterface $stockTransactionRepository,
+        protected ActivityLogService $activityLogService
     ) {
     }
 
@@ -92,7 +94,23 @@ class ProductController extends Controller
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
-        $this->productRepository->create($validated);
+        $product = $this->productRepository->create($validated);
+
+        $this->activityLogService->log(
+            action: 'created',
+            description: 'Menambahkan produk "' . $product->name . '".',
+            subjectType: 'Product',
+            subjectId: $product->id,
+            properties: [
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'category_id' => $product->category_id,
+                'supplier_id' => $product->supplier_id,
+                'purchase_price' => $product->purchase_price,
+                'selling_price' => $product->selling_price,
+                'minimum_stock' => $product->minimum_stock,
+            ]
+        );
 
         return redirect()
             ->route('products.index')
@@ -138,10 +156,21 @@ class ProductController extends Controller
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
+
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
         $this->productRepository->update($id, $validated);
+
+        $this->activityLogService->log(
+            action: 'updated',
+            description: 'Memperbarui produk "' . $validated['name'] . '".',
+            subjectType: 'Product',
+            subjectId: $product->id,
+            properties: [
+                'changes' => $validated,
+            ]
+        );
 
         return redirect()
             ->route('products.index')
@@ -161,6 +190,17 @@ class ProductController extends Controller
         }
 
         $this->productRepository->delete($id);
+
+        $this->activityLogService->log(
+            action: 'deleted',
+            description: 'Menghapus produk "' . $product->name . '".',
+            subjectType: 'Product',
+            subjectId: $product->id,
+            properties: [
+                'name' => $product->name,
+                'sku' => $product->sku,
+            ]
+        );
 
         return redirect()
             ->route('products.index')

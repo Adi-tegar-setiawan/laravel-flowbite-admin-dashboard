@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Services\ActivityLogService;
 
 class CategoryController extends Controller
 {
     public function __construct(
-        protected CategoryRepositoryInterface $categoryRepository
+        protected CategoryRepositoryInterface $categoryRepository,
+        protected ActivityLogService $activityLogService
     ) {
     }
 
@@ -40,7 +42,19 @@ class CategoryController extends Controller
             'description' => ['nullable'],
         ]);
 
-        $this->categoryRepository->create($validated);
+        $category = $this->categoryRepository->create($validated);
+
+        // Activity Log
+        $this->activityLogService->log(
+            action: 'CREATE',
+            description: 'Menambahkan kategori baru "' . $category->name . '"',
+            subjectType: 'Category',
+            subjectId: $category->id,
+            properties: [
+                'name' => $category->name,
+                'description' => $category->description,
+            ]
+        );
 
         return redirect()
             ->route('categories.index')
@@ -67,7 +81,30 @@ class CategoryController extends Controller
             'description' => ['nullable'],
         ]);
 
+        // Ambil data sebelum update
+        $category = $this->categoryRepository->find($id);
+
+        $oldData = [
+            'name' => $category->name,
+            'description' => $category->description,
+        ];
+
         $this->categoryRepository->update($id, $validated);
+
+        // Activity Log
+        $this->activityLogService->log(
+            action: 'UPDATE',
+            description: 'Mengubah kategori "' . $category->name . '"',
+            subjectType: 'Category',
+            subjectId: $category->id,
+            properties: [
+                'old' => $oldData,
+                'new' => [
+                    'name' => $validated['name'],
+                    'description' => $validated['description'] ?? null,
+                ],
+            ]
+        );
 
         return redirect()
             ->route('categories.index')
@@ -79,7 +116,24 @@ class CategoryController extends Controller
      */
     public function destroy(int $id)
     {
+        // Ambil data sebelum dihapus
+        $category = $this->categoryRepository->find($id);
+
+        $categoryData = [
+            'name' => $category->name,
+            'description' => $category->description,
+        ];
+
         $this->categoryRepository->delete($id);
+
+        // Activity Log
+        $this->activityLogService->log(
+            action: 'DELETE',
+            description: 'Menghapus kategori "' . $category->name . '"',
+            subjectType: 'Category',
+            subjectId: $category->id,
+            properties: $categoryData
+        );
 
         return redirect()
             ->route('categories.index')

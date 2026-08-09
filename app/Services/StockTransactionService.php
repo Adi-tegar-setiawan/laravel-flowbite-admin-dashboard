@@ -46,7 +46,7 @@ class StockTransactionService
             $transaction = $this->transactionRepository->create($data);
 
             $this->activityLogService->log(
-                'created',
+                'CREATED',
                 'Membuat transaksi stok ' .
                 $transaction->type .
                 ' untuk produk ' .
@@ -133,7 +133,7 @@ class StockTransactionService
             $transaction = $this->transactionRepository->update($id, $data);
 
             $this->activityLogService->log(
-                'updated',
+                'UPDATED',
                 'Memperbarui transaksi stok #' . $id,
                 'StockTransaction',
                 $id,
@@ -161,7 +161,7 @@ class StockTransactionService
             $this->transactionRepository->delete($id);
 
             $this->activityLogService->log(
-                'deleted',
+                'DELETE',
                 'Menghapus transaksi stok #' . $id,
                 'StockTransaction',
                 $id,

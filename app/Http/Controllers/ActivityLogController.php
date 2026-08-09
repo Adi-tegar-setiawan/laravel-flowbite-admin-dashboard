@@ -11,10 +11,23 @@ class ActivityLogController extends Controller
     ) {
     }
 
+    /**
+     * Menampilkan daftar activity log.
+     */
     public function index()
     {
-        $activities = $this->activityLogService->paginate(15);
+        $activities = $this->activityLogService->all();
 
         return view('activity-logs.index', compact('activities'));
+    }
+
+    /**
+     * Menampilkan detail activity log.
+     */
+    public function show(int $id)
+    {
+        $activity = $this->activityLogService->find($id);
+
+        return view('activity-logs.show', compact('activity'));
     }
 }
