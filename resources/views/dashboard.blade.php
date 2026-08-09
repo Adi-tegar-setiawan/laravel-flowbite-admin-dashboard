@@ -238,21 +238,10 @@
                     @foreach ($dashboard['lowStockProducts']->take(5) as $product)
 
                         @php
-
-                            $stockIn = $product->stockTransactions
-                                ->where('type', 'Masuk')
-                                ->where('status', 'Diterima')
-                                ->sum('quantity');
-
-                            $stockOut = $product->stockTransactions
-                                ->where('type', 'Keluar')
-                                ->where('status', 'Dikeluarkan')
-                                ->sum('quantity');
-
-                            $currentStock = $stockIn - $stockOut;
-
+                            // Menggunakan atribut stok saat ini dari model/repository atau fallback
+                            $currentStock = $product->current_stock ?? $product->stock ?? 0;
+                            $minStock = $product->minimum_stock ?? $product->min_stock ?? 0;
                         @endphp
-
 
                         <div class="flex items-center justify-between p-5">
 
@@ -281,7 +270,7 @@
                                 </p>
 
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    Minimum: {{ $product->minimum_stock }}
+                                    Minimum: {{ $minStock }}
                                 </p>
 
                             </div>
@@ -307,36 +296,47 @@
         </div>
 
 
-        {{-- RECENT ACTIVITY --}}
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+        {{-- RECENT ACTIVITY (ActivityLog) --}}
+        <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
 
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
 
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    Aktivitas Terbaru
-                </h2>
+                <div class="flex items-center justify-between">
 
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Aktivitas transaksi terbaru pengguna.
-                </p>
+                    <div>
+
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            Aktivitas Pengguna Terbaru
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Log riwayat aktivitas pengguna di sistem.
+                        </p>
+
+                    </div>
+
+                    {{-- Link ke Halaman Activity Log Lengkap --}}
+                    <a
+                        href="{{ route('activity-logs.index') }}"
+                        class="text-sm font-medium text-blue-600 hover:underline shrink-0"
+                    >
+                        Lihat semua
+                    </a>
+
+                </div>
 
             </div>
 
 
-            <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            {{-- Diberikan max-height dan overflow-y-auto agar tidak scroll memanjang ke bawah --}}
+            <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[380px] overflow-y-auto custom-scrollbar">
 
-                @forelse ($dashboard['recentTransactions'] as $transaction)
+                @forelse ($dashboard['recentActivities'] as $activity)
 
-                    <div class="flex items-start gap-4 p-5">
+                    <div class="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
 
-                        <div class="flex items-center justify-center flex-shrink-0 w-10 h-10
-                            {{ $transaction->type === 'Masuk'
-                                ? 'text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400'
-                                : 'text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400' }}
-                            rounded-full">
-
-                            {{ $transaction->type === 'Masuk' ? '↑' : '↓' }}
-
+                        <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-600 bg-blue-100 rounded-full dark:bg-blue-900/30 dark:text-blue-400 text-xs">
+                            📝
                         </div>
 
 
@@ -345,32 +345,17 @@
                             <p class="text-sm text-gray-900 dark:text-white">
 
                                 <span class="font-semibold">
-                                    {{ $transaction->user?->name ?? 'User' }}
+                                    {{ $activity->user?->name ?? 'System' }}
                                 </span>
 
-                                melakukan transaksi
-
-                                <span class="font-semibold">
-                                    {{ $transaction->type }}
-                                </span>
-
-                            </p>
-
-
-                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-
-                                {{ $transaction->product?->name ?? '-' }}
-
-                                ·
-
-                                {{ $transaction->quantity }} unit
+                                — {{ $activity->description ?? $activity->action }}
 
                             </p>
 
 
                             <p class="mt-1 text-xs text-gray-400">
 
-                                {{ $transaction->created_at->diffForHumans() }}
+                                {{ $activity->created_at->diffForHumans() }}
 
                             </p>
 
@@ -382,7 +367,7 @@
 
                     <div class="p-6 text-sm text-gray-500 dark:text-gray-400">
 
-                        Belum ada aktivitas transaksi.
+                        Belum ada log aktivitas pengguna.
 
                     </div>
 
@@ -391,10 +376,6 @@
             </div>
 
         </div>
-
-    </div>
-
-</div>
 
 
 {{-- CHART.JS --}}
@@ -421,6 +402,10 @@
 
                     data: chartData.map(item => item.stockIn),
 
+                    borderColor: '#10B981',
+
+                    backgroundColor: '#10B981',
+
                     borderWidth: 2,
 
                     tension: 0.3,
@@ -432,6 +417,10 @@
                     label: 'Barang Keluar',
 
                     data: chartData.map(item => item.stockOut),
+
+                    borderColor: '#EF4444',
+
+                    backgroundColor: '#EF4444',
 
                     borderWidth: 2,
 

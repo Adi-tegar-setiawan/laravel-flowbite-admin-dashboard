@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Services\DashboardService;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct(
         protected DashboardService $dashboardService
@@ -15,9 +16,9 @@ class DashboardController extends Controller
     }
 
     /**
-     * Menampilkan dashboard.
+     * Menampilkan dashboard utama admin.
      */
-    public function index()
+    public function index(): View
     {
         $dashboard = $this->dashboardService->getDashboardData();
 
