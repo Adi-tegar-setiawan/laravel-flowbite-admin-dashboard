@@ -7,7 +7,7 @@
     <meta name="author" content="#">
     <meta name="generator" content="Laravel">
 
-    <title>Dashboard - </title>
+    <title>Dashboard - Stockify</title>
     @vite(['resources/css/app.css','resources/js/app.js'])
     <link rel="canonical" href="{{ request()->fullUrl() }}">
 
@@ -26,44 +26,83 @@
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="theme-color" content="#ffffff">
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@">
-    <meta name="twitter:creator" content="@">
-    <meta name="twitter:title" content="title">
-    <meta name="twitter:description" content="description">
-    <meta name="twitter:image" content="#">
-    <!-- Facebook -->
-    <meta property="og:url" content="#">
-    <meta property="og:title" content="title">
-    <meta property="og:description" content="description">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="#">
-    <meta property="og:image:type" content="image/png">
 
     <script>
-        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark')
         }
     </script>
+
+    {{-- CSS KHUSUS PRINT GLOBAL --}}
+    <style>
+    @media print {
+        /* Sembunyikan semua elemen navigasi, header, sidebar, footer, dan debugbar */
+        nav, 
+        header, 
+        aside, 
+        footer, 
+        .print\:hidden,
+        #phpdebugbar, 
+        .phpdebugbar-minified {
+            display: none !important;
+        }
+
+        /* Reset background, margin, dan padding ke kertas putih */
+        html, body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            background: #ffffff !important;
+        }
+
+        /* Paksa area konten agar memenuhi seluruh kertas */
+        #main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            position: static !important;
+            overflow: visible !important;
+            background-color: #ffffff !important;
+        }
+
+        .flex.pt-16 {
+            padding-top: 0 !important;
+        }
+    }
+    </style>
 </head>
 @php
     $whiteBg = isset($params['white_bg']) && $params['white_bg'];
 @endphp
 <body class="{{ $whiteBg ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800' }}">
-    <x-navbar-dashboard/>
-    <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
-        <x-sidebar.admin-sidebar/>
-        <div id="main-content" class="relative w-full h-full overflow-y-auto bg-gray-50 lg:ml-64 dark:bg-gray-900">
+
+    {{-- NAVBAR (SEMBUNYIKAN SAAT PRINT) --}}
+    <div class="print:hidden">
+        <x-navbar-dashboard/>
+    </div>
+
+    <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900 print:pt-0 print:bg-white">
+        
+        {{-- SIDEBAR (SEMBUNYIKAN SAAT PRINT) --}}
+        <div class="print:hidden">
+            <x-sidebar.admin-sidebar/>
+        </div>
+
+        {{-- MAIN CONTENT --}}
+        <div id="main-content" class="relative w-full h-full overflow-y-auto bg-gray-50 lg:ml-64 dark:bg-gray-900 print:ml-0 print:bg-white print:p-0">
             <main>
                 @yield('content')
             </main>
-            <x-footer-dashboard/>
+
+            {{-- FOOTER (SEMBUNYIKAN SAAT PRINT) --}}
+            <div class="print:hidden">
+                <x-footer-dashboard/>
+            </div>
         </div>
+
     </div>
+
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.2/datepicker.min.js"></script>
 </body>

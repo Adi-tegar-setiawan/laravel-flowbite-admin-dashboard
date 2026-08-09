@@ -29,4 +29,8 @@ interface StockTransactionRepositoryInterface
     public function getTransactionChartData(int $days = 7);
 
     public function getRecentTransactions(int $limit = 5);
+    /**
+     * Mengambil data laporan transaksi berdasarkan tanggal dan tipe.
+     */
+    public function getReport(string $startDate, string $endDate, ?string $type = null);
 }

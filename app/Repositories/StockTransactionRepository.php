@@ -163,4 +163,22 @@ class StockTransactionRepository implements StockTransactionRepositoryInterface
             ->limit($limit)
             ->get();
     }
+
+    /**
+     * Mengambil data laporan transaksi berdasarkan tanggal dan tipe.
+     */
+    public function getReport(string $startDate, string $endDate, ?string $type = null)
+    {
+        $query = StockTransaction::with(['product', 'user'])
+            ->whereBetween('date', [
+                $startDate,
+                $endDate
+            ]);
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        return $query->latest('date')->latest('id')->get();
+    }
 }

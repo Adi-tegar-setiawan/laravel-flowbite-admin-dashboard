@@ -31,13 +31,24 @@
     />
 
     <x-sidebar-menu-dashboard
-    routeName="stock-opnames.index"
-    title="Stock Opname"
+        routeName="stock-opnames.index"
+        title="Stock Opname"
     />
 
     <x-sidebar-menu-dashboard
         routeName="activity-logs.index"
         title="Activity Log"
+    />
+
+    {{-- MENU LAPORAN --}}
+    <x-sidebar-menu-dashboard
+        routeName="reports.stock"
+        title="Laporan Stok"
+    />
+
+    <x-sidebar-menu-dashboard
+        routeName="reports.transactions"
+        title="Laporan Transaksi"
     />
 
 </x-sidebar-dashboard>

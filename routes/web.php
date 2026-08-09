@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ReportController;
 use App\Services\ActivityLogService;
 
 
@@ -158,7 +159,7 @@ Route::middleware([
     |--------------------------------------------------------------------------
     */
     Route::resource('stock-opnames', StockOpnameController::class)
-    ->except(['show']);
+        ->except(['show']);
 
     Route::resource('transactions', StockTransactionController::class)
         ->except(['show']);
@@ -176,6 +177,19 @@ Route::middleware([
     'auth',
     'role:Admin,Manajer Gudang'
 ])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/reports/stock', [ReportController::class, 'stockReport'])
+        ->name('reports.stock');
+
+    Route::get('/reports/transactions', [ReportController::class, 'transactionReport'])
+        ->name('reports.transactions');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -257,25 +271,3 @@ Route::middleware([
     ])->name('transactions.store');
 
 });
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-// Route::name('index-practice')->get('/', function () {
-//     return view('pages.practice.index');
-// });
-
-// Route::name('practice.')->group(function () {
-//     Route::name('first')->get('practice/1', function () {
-//         return view('pages.practice.1');
-//     });
-//     Route::name('second')->get('practice/2', function () {
-//         return view('pages.practice.2');
-//     });
-// });
