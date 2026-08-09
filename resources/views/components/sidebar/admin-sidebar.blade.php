@@ -51,4 +51,9 @@
         title="Laporan Transaksi"
     />
 
+    <x-sidebar-menu-dashboard
+        routeName="settings.index"
+        title="Settings"
+    />
+
 </x-sidebar-dashboard>

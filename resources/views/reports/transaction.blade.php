@@ -7,8 +7,13 @@
     <div class="hidden print:block mb-6 border-b-2 border-gray-800 pb-4">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold uppercase text-black">STOCKIFY WAREHOUSE</h1>
+                <h1 class="text-2xl font-bold uppercase text-black">
+                    {{ $appSettings['company_name'] ?? $appSettings['app_name'] ?? 'STOCKIFY WAREHOUSE' }}
+                </h1>
                 <p class="text-xs text-gray-600">Sistem Manajemen Stok & Inventaris Gudang</p>
+                @if(!empty($appSettings['company_email']))
+                    <p class="text-xs text-gray-500">Email: {{ $appSettings['company_email'] }} | Telp: {{ $appSettings['company_phone'] ?? '-' }}</p>
+                @endif
             </div>
             <div class="text-right text-xs text-gray-600">
                 <p><span class="font-semibold">Laporan:</span> Transaksi Barang ({{ $selectedType ?? 'Masuk & Keluar' }})</p>
