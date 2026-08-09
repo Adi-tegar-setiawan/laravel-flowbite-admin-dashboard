@@ -97,33 +97,37 @@
                                         @endif
                                     </div>
 
-    <div class="mt-2 font-medium text-gray-900 dark:text-white">
-        Rp {{ number_format($product->selling_price, 0, ',', '.') }}
-    </div>
-</div>
+                                    <div class="mt-2 font-medium text-gray-900 dark:text-white">
+                                        Rp {{ number_format($product->selling_price, 0, ',', '.') }}
+                                    </div>
+                                </div>
 
                                 {{-- Tombol Aksi (Detail, Edit, Delete) --}}
                                 <div class="flex items-center gap-2">
+                                    {{-- Detail (Admin & Manajer Gudang) --}}
                                     <a href="{{ route('products.show', $product->id) }}"
                                        class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
                                         Detail
                                     </a>
 
-                                    <a href="{{ route('products.edit', $product->id) }}"
-                                       class="px-3 py-1.5 text-xs font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 focus:ring-4 focus:ring-amber-300">
-                                        Edit
-                                    </a>
+                                    {{-- Edit & Hapus (HANYA ADMIN) --}}
+                                    @if(auth()->user()->role === 'Admin')
+                                        <a href="{{ route('products.edit', $product->id) }}"
+                                           class="px-3 py-1.5 text-xs font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 focus:ring-4 focus:ring-amber-300">
+                                            Edit
+                                        </a>
 
-                                    <form action="{{ route('products.destroy', $product->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                        <form action="{{ route('products.destroy', $product->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-300">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
 
                             </div>

@@ -1,59 +1,84 @@
 <x-sidebar-dashboard>
 
+    {{-- DASHBOARD (Semua Role) --}}
     <x-sidebar-menu-dashboard
         routeName="dashboard"
         title="Dashboard"
     />
 
-    <x-sidebar-menu-dashboard
-        routeName="users.index"
-        title="Users"
-    />
+    {{-- USERS (Hanya Admin) --}}
+    @if(auth()->user()->role === 'Admin')
+        <x-sidebar-menu-dashboard
+            routeName="users.index"
+            title="Users"
+        />
+    @endif
 
-    <x-sidebar-menu-dashboard
-        routeName="categories.index"
-        title="Categories"
-    />
+    {{-- CATEGORIES (Hanya Admin) --}}
+    @if(auth()->user()->role === 'Admin')
+        <x-sidebar-menu-dashboard
+            routeName="categories.index"
+            title="Categories"
+        />
+    @endif
 
-    <x-sidebar-menu-dashboard
-        routeName="suppliers.index"
-        title="Suppliers"
-    />
+    {{-- SUPPLIERS (Admin & Manajer Gudang) --}}
+    @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+        <x-sidebar-menu-dashboard
+            routeName="suppliers.index"
+            title="Suppliers"
+        />
+    @endif
 
-    <x-sidebar-menu-dashboard
-        routeName="products.index"
-        title="Products"
-    />
+    {{-- PRODUCTS (Admin & Manajer Gudang) --}}
+    @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+        <x-sidebar-menu-dashboard
+            routeName="products.index"
+            title="Products"
+        />
+    @endif
 
+    {{-- TRANSACTIONS (Semua Role) --}}
     <x-sidebar-menu-dashboard
         routeName="transactions.index"
         title="Transactions"
     />
 
-    <x-sidebar-menu-dashboard
-        routeName="stock-opnames.index"
-        title="Stock Opname"
-    />
+    {{-- STOCK OPNAME (Hanya Admin) --}}
+    @if(auth()->user()->role === 'Admin')
+        <x-sidebar-menu-dashboard
+            routeName="stock-opnames.index"
+            title="Stock Opname"
+        />
+    @endif
 
-    <x-sidebar-menu-dashboard
-        routeName="activity-logs.index"
-        title="Activity Log"
-    />
+    {{-- ACTIVITY LOG (Hanya Admin) --}}
+    @if(auth()->user()->role === 'Admin')
+        <x-sidebar-menu-dashboard
+            routeName="activity-logs.index"
+            title="Activity Log"
+        />
+    @endif
 
-    {{-- MENU LAPORAN --}}
-    <x-sidebar-menu-dashboard
-        routeName="reports.stock"
-        title="Laporan Stok"
-    />
+    {{-- LAPORAN / REPORTS (Admin & Manajer Gudang) --}}
+    @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+        <x-sidebar-menu-dashboard
+            routeName="reports.stock"
+            title="Laporan Stok"
+        />
 
-    <x-sidebar-menu-dashboard
-        routeName="reports.transactions"
-        title="Laporan Transaksi"
-    />
+        <x-sidebar-menu-dashboard
+            routeName="reports.transactions"
+            title="Laporan Transaksi"
+        />
+    @endif
 
-    <x-sidebar-menu-dashboard
-        routeName="settings.index"
-        title="Settings"
-    />
+    {{-- SETTINGS (Hanya Admin) --}}
+    @if(auth()->user()->role === 'Admin')
+        <x-sidebar-menu-dashboard
+            routeName="settings.index"
+            title="Settings"
+        />
+    @endif
 
 </x-sidebar-dashboard>

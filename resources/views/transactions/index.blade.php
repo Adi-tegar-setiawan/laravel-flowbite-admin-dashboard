@@ -5,17 +5,19 @@
 <div>
 
     {{-- Header --}}
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between mb-6 p-3">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
             Stock Transactions
         </h1>
 
-        <a
-            href="{{ route('transactions.create') }}"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
-        >
-            + Tambah Transaksi
-        </a>
+        @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+            <a
+                href="{{ route('transactions.create') }}"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+            >
+                + Tambah Transaksi
+            </a>
+        @endif
     </div>
 
 
