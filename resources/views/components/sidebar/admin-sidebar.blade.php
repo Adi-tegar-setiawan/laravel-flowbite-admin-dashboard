@@ -44,8 +44,8 @@
         title="Transactions"
     />
 
-    {{-- STOCK OPNAME (Hanya Admin) --}}
-    @if(auth()->user()->role === 'Admin')
+    {{-- STOCK OPNAME (Hanya Admin dan Manajer Gudang) --}}
+    @if(auth()->user()->role === ['Admin', 'Manajer Gudang'])
         <x-sidebar-menu-dashboard
             routeName="stock-opnames.index"
             title="Stock Opname"

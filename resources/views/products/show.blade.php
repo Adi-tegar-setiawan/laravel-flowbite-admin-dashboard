@@ -16,13 +16,17 @@
         </div>
 
         <div class="flex items-center gap-3">
-            <a href="{{ route('products.edit', $product->id) }}"
-               class="px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 focus:ring-4 focus:ring-amber-300">
-                Edit Produk
-            </a>
+            {{-- TOMBOL EDIT PRODUK (KHUSUS ADMIN) --}}
+            @if (auth()->user()->role === 'Admin')
+                <a href="{{ route('products.edit', $product->id) }}"
+                   class="px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 focus:ring-4 focus:ring-amber-300">
+                    Edit Produk
+                </a>
+            @endif
 
+            {{-- TOMBOL KEMBALI (SEMUA ROLE) --}}
             <a href="{{ route('products.index') }}"
-               class="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300">
+               class="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                 Kembali
             </a>
         </div>
@@ -199,101 +203,103 @@
             </h2>
 
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Tambahkan informasi tambahan untuk produk ini.
+                Information tambahan mengenai spesifikasi produk ini.
             </p>
 
         </div>
 
 
-        {{-- Form Tambah Attribute --}}
-        <form
-            action="{{ route('products.attributes.store', $product->id) }}"
-            method="POST"
-            class="grid grid-cols-1 gap-4 mb-6 md:grid-cols-3"
-        >
+        {{-- FORM TAMBAH ATTRIBUTE (KHUSUS ADMIN) --}}
+        @if (auth()->user()->role === 'Admin')
+            <form
+                action="{{ route('products.attributes.store', $product->id) }}"
+                method="POST"
+                class="grid grid-cols-1 gap-4 mb-6 md:grid-cols-3"
+            >
 
-            @csrf
-
-
-            {{-- Nama Attribute --}}
-            <div>
-
-                <label
-                    for="attribute_name"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                    Nama Atribut
-                </label>
-
-                <input
-                    type="text"
-                    id="attribute_name"
-                    name="name"
-                    value="{{ old('name') }}"
-                    placeholder="Contoh: Warna"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                           focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                           dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    required
-                >
-
-                @error('name')
-                    <p class="mt-1 text-sm text-red-600">
-                        {{ $message }}
-                    </p>
-                @enderror
-
-            </div>
+                @csrf
 
 
-            {{-- Value --}}
-            <div>
+                {{-- Nama Attribute --}}
+                <div>
 
-                <label
-                    for="attribute_value"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                    Nilai
-                </label>
+                    <label
+                        for="attribute_name"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                        Nama Atribut
+                    </label>
 
-                <input
-                    type="text"
-                    id="attribute_value"
-                    name="value"
-                    value="{{ old('value') }}"
-                    placeholder="Contoh: Hitam"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
-                           focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
-                           dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    required
-                >
+                    <input
+                        type="text"
+                        id="attribute_name"
+                        name="name"
+                        value="{{ old('name') }}"
+                        placeholder="Contoh: Warna"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                    >
 
-                @error('value')
-                    <p class="mt-1 text-sm text-red-600">
-                        {{ $message }}
-                    </p>
-                @enderror
+                    @error('name')
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ $message }}
+                        </p>
+                    @enderror
 
-            </div>
-
-
-            {{-- Submit --}}
-            <div class="flex items-end">
-
-                <button
-                    type="submit"
-                    class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600
-                           rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
-                >
-                    Tambah Atribut
-                </button>
-
-            </div>
-
-        </form>
+                </div>
 
 
-        {{-- Daftar Attribute --}}
+                {{-- Value --}}
+                <div>
+
+                    <label
+                        for="attribute_value"
+                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    >
+                        Nilai
+                    </label>
+
+                    <input
+                        type="text"
+                        id="attribute_value"
+                        name="value"
+                        value="{{ old('value') }}"
+                        placeholder="Contoh: Hitam"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                               focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5
+                               dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                        required
+                    >
+
+                    @error('value')
+                        <p class="mt-1 text-sm text-red-600">
+                            {{ $message }}
+                        </p>
+                    @enderror
+
+                </div>
+
+
+                {{-- Submit --}}
+                <div class="flex items-end">
+
+                    <button
+                        type="submit"
+                        class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600
+                               rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+                    >
+                        Tambah Atribut
+                    </button>
+
+                </div>
+
+            </form>
+        @endif
+
+
+        {{-- DAFTAR ATTRIBUTE --}}
         @if ($product->attributes->isNotEmpty())
 
             <div class="overflow-x-auto">
@@ -312,9 +318,12 @@
                                 Nilai
                             </th>
 
-                            <th class="px-6 py-3 text-right">
-                                Aksi
-                            </th>
+                            {{-- KOLOM AKSI (KHUSUS ADMIN) --}}
+                            @if (auth()->user()->role === 'Admin')
+                                <th class="px-6 py-3 text-right">
+                                    Aksi
+                                </th>
+                            @endif
 
                         </tr>
 
@@ -335,54 +344,57 @@
                                     {{ $attribute->value }}
                                 </td>
 
-                                <td class="px-6 py-4 text-right">
+                                {{-- TOMBOL AKSI EDIT & HAPUS ATRIBUT (KHUSUS ADMIN) --}}
+                                @if (auth()->user()->role === 'Admin')
+                                    <td class="px-6 py-4 text-right">
 
-                                    <div class="flex justify-end items-center gap-3">
+                                        <div class="flex justify-end items-center gap-3">
 
-                                        {{-- Edit --}}
-                                        <a
-                                            href="{{ route(
-                                                'products.attributes.edit',
-                                                [
-                                                    'productId' => $product->id,
-                                                    'attributeId' => $attribute->id,
-                                                ]
-                                            ) }}"
-                                            class="font-medium text-blue-600 hover:underline"
-                                        >
-                                            Edit
-                                        </a>
-
-
-                                        {{-- Hapus --}}
-                                        <form
-                                            action="{{ route(
-                                                'products.attributes.destroy',
-                                                [
-                                                    'productId' => $product->id,
-                                                    'attributeId' => $attribute->id,
-                                                ]
-                                            ) }}"
-                                            method="POST"
-                                            class="inline"
-                                        >
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button
-                                                type="submit"
-                                                class="font-medium text-red-600 hover:underline"
-                                                onclick="return confirm('Hapus atribut ini?')"
+                                            {{-- Edit --}}
+                                            <a
+                                                href="{{ route(
+                                                    'products.attributes.edit',
+                                                    [
+                                                        'productId' => $product->id,
+                                                        'attributeId' => $attribute->id,
+                                                    ]
+                                                ) }}"
+                                                class="font-medium text-blue-600 hover:underline"
                                             >
-                                                Hapus
-                                            </button>
+                                                Edit
+                                            </a>
 
-                                        </form>
 
-                                    </div>
+                                            {{-- Hapus --}}
+                                            <form
+                                                action="{{ route(
+                                                    'products.attributes.destroy',
+                                                    [
+                                                        'productId' => $product->id,
+                                                        'attributeId' => $attribute->id,
+                                                    ]
+                                                ) }}"
+                                                method="POST"
+                                                class="inline"
+                                            >
 
-                                </td>
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                    type="submit"
+                                                    class="font-medium text-red-600 hover:underline"
+                                                    onclick="return confirm('Hapus atribut ini?')"
+                                                >
+                                                    Hapus
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </td>
+                                @endif
 
                             </tr>
 

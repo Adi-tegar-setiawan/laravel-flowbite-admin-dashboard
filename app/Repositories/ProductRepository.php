@@ -88,6 +88,37 @@ class ProductRepository implements ProductRepositoryInterface
         return $product;
     }
 
+    public function getByCategory($categoryId)
+    {
+        $query = Product::with(['category', 'supplier']);
+
+        // Jika $categoryId diisi / tidak kosong, filter berdasarkan category_id
+        if (!empty($categoryId)) {
+            $query->where('category_id', $categoryId);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Mengambil Laporan Stok berdasarkan Kategori & Periode Tanggal
+     */
+    public function getStockReport(array $filters = [])
+    {
+        $query = Product::with(['category', 'supplier', 'stockTransactions' => function ($q) use ($filters) {
+            if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+                $q->whereBetween('date', [$filters['start_date'], $filters['end_date']]);
+            }
+        }]);
+
+        // Filter Kategori
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        return $query->get();
+    }
+
     public function delete(int $id)
     {
         return $this->find($id)->delete();

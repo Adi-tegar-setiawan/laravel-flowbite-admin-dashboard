@@ -18,16 +18,19 @@ class ReportController extends Controller
      */
     public function stockReport(Request $request): View
     {
-        $categoryId = $request->input('category_id');
+        $filters = [
+            'category_id' => $request->input('category_id'),
+            'start_date'  => $request->input('start_date'),
+            'end_date'    => $request->input('end_date'),
+        ];
 
-        $products = $this->reportService->getStockReport($categoryId ? (int) $categoryId : null);
+        // 1. Ambil Kategori lewat ReportService
         $categories = $this->reportService->getCategories();
 
-        return view('reports.stock', [
-            'products' => $products,
-            'categories' => $categories,
-            'selectedCategory' => $categoryId,
-        ]);
+        // 2. Ambil Data Laporan Stok lewat ReportService
+        $products = $this->reportService->getStockReport($filters);
+
+        return view('reports.stock', compact('products', 'categories', 'filters'));
     }
 
     /**
@@ -37,15 +40,15 @@ class ReportController extends Controller
     {
         // Default periode: awal bulan ini s/d hari ini
         $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->input('end_date', now()->toDateString());
-        $type = $request->input('type'); // 'Masuk', 'Keluar', atau null (semua)
+        $endDate   = $request->input('end_date', now()->toDateString());
+        $type      = $request->input('type'); // 'Masuk', 'Keluar', atau null (semua)
 
         $transactions = $this->reportService->getTransactionReport($startDate, $endDate, $type);
 
         return view('reports.transaction', [
             'transactions' => $transactions,
-            'startDate' => $startDate,
-            'endDate' => $endDate,
+            'startDate'    => $startDate,
+            'endDate'      => $endDate,
             'selectedType' => $type,
         ]);
     }

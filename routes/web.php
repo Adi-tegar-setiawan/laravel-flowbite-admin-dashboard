@@ -13,273 +13,106 @@ use App\Http\Controllers\StockTransactionController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\ReportController;
-use App\Services\ActivityLogService;
 use App\Http\Controllers\SettingController;
-
+use App\Services\ActivityLogService;
 
 /*
 |--------------------------------------------------------------------------
-| Guest Routes
+| Guest Routes (Belum Login)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('guest')->group(function () {
-
-    Route::get('/login', [AuthController::class, 'showLogin'])
-        ->name('login');
-
-    Route::post('/login', [AuthController::class, 'login'])
-        ->name('login.process');
-
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 });
 
-
 /*
 |--------------------------------------------------------------------------
-| Authenticated Routes
+| Authenticated Routes (Semua User Terautentikasi)
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
-
-    Route::post('/logout', [AuthController::class, 'logout'])
-        ->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('dashboard');
-
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 });
-
 
 /*
 |--------------------------------------------------------------------------
-| Admin
+| 1. KHUSUS ADMIN (Full Control, Master Data, Audit, & Settings)
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'role:Admin'])->group(function () {
 
-Route::middleware([
-    'auth',
-    'role:Admin'
-])->group(function () {
+    // Manajemen Pengguna (CRUD Users)
+    Route::resource('users', UserController::class)->except(['show']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Users
-    |--------------------------------------------------------------------------
-    */
+    // Manajemen Kategori (CRUD Categories)
+    Route::resource('categories', CategoryController::class)->except(['show']);
 
-    Route::resource('users', UserController::class)
-        ->except(['show']);
+    // Manajemen Supplier (CRUD Supplier - Add, Edit, Delete)
+    Route::resource('suppliers', SupplierController::class)->except(['index', 'show']);
 
+    // Produk (Khusus Edit & Hapus Master Produk)
+    Route::resource('products', ProductController::class)->only(['edit', 'update', 'destroy']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Categories
-    |--------------------------------------------------------------------------
-    */
+    // Atribut Produk (Khusus Admin)
+    Route::post('/products/{productId}/attributes', [ProductAttributeController::class, 'store'])->name('products.attributes.store');
+    Route::get('/products/{productId}/attributes/{attributeId}/edit', [ProductAttributeController::class, 'edit'])->name('products.attributes.edit');
+    Route::put('/products/{productId}/attributes/{attributeId}', [ProductAttributeController::class, 'update'])->name('products.attributes.update');
+    Route::delete('/products/{productId}/attributes/{attributeId}', [ProductAttributeController::class, 'destroy'])->name('products.attributes.destroy');
 
-    Route::resource('categories', CategoryController::class)
-        ->except(['show']);
+    // Pengaturan Umum Aplikasi (Settings)
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
 
+    // Laporan Aktivitas Pengguna (Activity Log)
+    Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Suppliers - Admin CRUD
-    |--------------------------------------------------------------------------
-    */
-
-    Route::resource('suppliers', SupplierController::class)
-        ->except(['show']);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Products - Admin Update/Delete
-    |--------------------------------------------------------------------------
-    */
-
-    Route::resource('products', ProductController::class)
-        ->only([
-            'edit',
-            'update',
-            'destroy'
-        ]);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Settings
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/settings', [SettingController::class, 'index'])
-        ->name('settings.index');
-
-    Route::put('/settings', [SettingController::class, 'update'])
-        ->name('settings.update');
-
-    /*
-    |--------------------------------------------------------------------------
-    | Product Attributes
-    |--------------------------------------------------------------------------
-    */
-
-    Route::post('/products/{productId}/attributes', [
-        ProductAttributeController::class,
-        'store'
-    ])->name('products.attributes.store');
-
-    Route::delete('/products/{productId}/attributes/{attributeId}', [
-        ProductAttributeController::class,
-        'destroy'
-    ])->name('products.attributes.destroy');
-
-    Route::get('/products/{productId}/attributes/{attributeId}/edit', [
-        ProductAttributeController::class,
-        'edit'
-    ])->name('products.attributes.edit');
-
-    Route::put('/products/{productId}/attributes/{attributeId}', [
-        ProductAttributeController::class,
-        'update'
-    ])->name('products.attributes.update');
-
+    // Route Testing Activity Log
     Route::get('/test-activity-log', function (ActivityLogService $activityLogService) {
         $activityLogService->log(
             action: 'test',
             description: 'Admin melakukan test Activity Log.',
-            properties: [
-                'source' => 'manual-test',
-            ]
+            properties: ['source' => 'manual-test']
         );
-
         return 'Activity Log berhasil dibuat.';
     });
-
-    Route::get('/activity-logs', [ActivityLogController::class, 'index'])
-        ->name('activity-logs.index');
-
-    Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])
-        ->name('activity-logs.show');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Transactions - Admin Full Access
-    |--------------------------------------------------------------------------
-    */
-    Route::resource('stock-opnames', StockOpnameController::class)
-        ->except(['show']);
-
-    Route::resource('transactions', StockTransactionController::class)
-        ->except(['show']);
-
 });
-
 
 /*
 |--------------------------------------------------------------------------
-| Admin + Manajer Gudang
+| 2. ADMIN + MANAJER GUDANG (Input Produk Baru, View Supplier, & Laporan)
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'role:Admin,Manajer Gudang'])->group(function () {
 
-Route::middleware([
-    'auth',
-    'role:Admin,Manajer Gudang'
-])->group(function () {
+    // View Master Supplier (Digunakan saat pencatatan barang masuk)
+    Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Reports
-    |--------------------------------------------------------------------------
-    */
+    // Produk (View, Detail, & Tambah Produk Baru)
+    Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'show']);
 
-    Route::get('/reports/stock', [ReportController::class, 'stockReport'])
-        ->name('reports.stock');
-
-    Route::get('/reports/transactions', [ReportController::class, 'transactionReport'])
-        ->name('reports.transactions');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Suppliers - View Only
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/suppliers', [SupplierController::class, 'index'])
-        ->name('suppliers.index');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Products - View & Create
-    |--------------------------------------------------------------------------
-    */
-
-    Route::resource('products', ProductController::class)
-        ->only([
-            'index',
-            'create',
-            'store',
-            'show'
-        ]);
-
+    // Laporan Stok & Transaksi
+    Route::get('/reports/stock', [ReportController::class, 'stockReport'])->name('reports.stock');
+    Route::get('/reports/transactions', [ReportController::class, 'transactionReport'])->name('reports.transactions');
 });
-
 
 /*
 |--------------------------------------------------------------------------
-| Admin + Manajer Gudang + Staff Gudang
+| ADMIN + MANAJER GUDANG + STAFF GUDANG (Operasional Transaksi & Stock Opname)
 |--------------------------------------------------------------------------
 */
+Route::middleware(['auth', 'role:Admin,Manajer Gudang,Staff Gudang'])->group(function () {
 
-Route::middleware([
-    'auth',
-    'role:Admin,Manajer Gudang,Staff Gudang'
-])->group(function () {
+    // Pencatatan Transaksi Barang Masuk & Keluar
+    Route::resource('transactions', StockTransactionController::class)->except(['show']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Transactions - View
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/transactions', [
-        StockTransactionController::class,
-        'index'
-    ])->name('transactions.index');
-
-});
-
-
-/*
-|--------------------------------------------------------------------------
-| Manajer Gudang
-|--------------------------------------------------------------------------
-*/
-
-Route::middleware([
-    'auth',
-    'role:Manajer Gudang'
-])->group(function () {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Transactions - Create
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/transactions/create', [
-        StockTransactionController::class,
-        'create'
-    ])->name('transactions.create');
-
-    Route::post('/transactions', [
-        StockTransactionController::class,
-        'store'
-    ])->name('transactions.store');
-
+    // Stock Opname (Rekonsiliasi & Penyesuaian Stok)
+    Route::resource('stock-opnames', StockOpnameController::class)->except(['show']);
 });

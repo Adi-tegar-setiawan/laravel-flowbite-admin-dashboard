@@ -22,4 +22,8 @@ interface ProductRepositoryInterface
 
     public function getLowStockProducts();
 
+    public function getByCategory($categoryId);
+
+    public function getStockReport(array $filters = []);
+
 }

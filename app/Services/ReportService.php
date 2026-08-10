@@ -25,15 +25,12 @@ class ReportService
     }
 
     /**
-     * Mengambil data laporan stok produk.
+     * Mengambil data laporan stok produk (Filter Kategori & Periode Tanggal).
      */
-    public function getStockReport(?int $categoryId = null)
+    public function getStockReport(array $filters = [])
     {
-        if ($categoryId) {
-            return $this->productRepository->getByCategory($categoryId);
-        }
-
-        return $this->productRepository->all();
+        // Memanggil method getStockReport di ProductRepository
+        return $this->productRepository->getStockReport($filters);
     }
 
     /**

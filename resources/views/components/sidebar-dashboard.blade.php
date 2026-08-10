@@ -53,8 +53,8 @@
                 </svg>
             </x-sidebar-menu-dashboard>
 
-            {{-- 7. STOCK OPNAME (Hanya Admin) --}}
-            @if(auth()->user()->role === 'Admin')
+            {{-- 7. STOCK OPNAME (Admin, Manajer Gudang, & Staff Gudang) --}}
+            @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang', 'Staff Gudang']))
                 <x-sidebar-menu-dashboard routeName="stock-opnames.index" title="Stock Opname">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
@@ -63,7 +63,7 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 8. ACTIVITY LOG (Hanya Admin) --}}
+            {{-- 8. ACTIVITY LOG (Hanya Admin) - Sesuai Route: activity-logs.index --}}
             @if(auth()->user()->role === 'Admin')
                 <x-sidebar-menu-dashboard routeName="activity-logs.index" title="Activity Log">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -72,7 +72,7 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 9. LAPORAN STOK (Admin & Manajer) --}}
+            {{-- 9. LAPORAN STOK & TRANSAKSI (Admin & Manajer) --}}
             @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
                 <x-sidebar-menu-dashboard routeName="reports.stock" title="Laporan Stok">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">

@@ -199,9 +199,8 @@
     {{-- LOWER SECTION --}}
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
 
-
-        {{-- LOW STOCK --}}
-        <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+        {{-- LOW STOCK (Jika Admin tampil 1 kolom, jika bukan Admin tampil 2 kolom penuh) --}}
+        <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 {{ auth()->user()->role !== 'Admin' ? 'xl:col-span-2' : '' }}">
 
             <div class="p-6 border-b border-gray-200 dark:border-gray-700">
 
@@ -238,7 +237,6 @@
                     @foreach ($dashboard['lowStockProducts']->take(5) as $product)
 
                         @php
-                            // Menggunakan atribut stok saat ini dari model/repository atau fallback
                             $currentStock = $product->current_stock ?? $product->stock ?? 0;
                             $minStock = $product->minimum_stock ?? $product->min_stock ?? 0;
                         @endphp
@@ -296,87 +294,92 @@
         </div>
 
 
-        {{-- RECENT ACTIVITY (ActivityLog) --}}
-        <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+        {{-- RECENT ACTIVITY (ActivityLog) - HANYA MUNCUL UNTUK ROLE ADMIN --}}
+        @if(auth()->user()->role === 'Admin')
+            <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
 
-            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
 
-                <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between">
 
-                    <div>
+                        <div>
 
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                            Aktivitas Pengguna Terbaru
-                        </h2>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                Aktivitas Pengguna Terbaru
+                            </h2>
 
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Log riwayat aktivitas pengguna di sistem.
-                        </p>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                Log riwayat aktivitas pengguna di sistem.
+                            </p>
+
+                        </div>
+
+                        {{-- Link ke Halaman Activity Log Lengkap --}}
+                        <a
+                            href="{{ route('activity-logs.index') }}"
+                            class="text-sm font-medium text-blue-600 hover:underline shrink-0"
+                        >
+                            Lihat semua
+                        </a>
 
                     </div>
 
-                    {{-- Link ke Halaman Activity Log Lengkap --}}
-                    <a
-                        href="{{ route('activity-logs.index') }}"
-                        class="text-sm font-medium text-blue-600 hover:underline shrink-0"
-                    >
-                        Lihat semua
-                    </a>
+                </div>
+
+
+                {{-- Diberikan max-height dan overflow-y-auto agar tidak scroll memanjang ke bawah --}}
+                <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[380px] overflow-y-auto custom-scrollbar">
+
+                    @forelse ($dashboard['recentActivities'] as $activity)
+
+                        <div class="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+
+                            <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-600 bg-blue-100 rounded-full dark:bg-blue-900/30 dark:text-blue-400 text-xs">
+                                📝
+                            </div>
+
+
+                            <div class="flex-1 min-w-0">
+
+                                <p class="text-sm text-gray-900 dark:text-white">
+
+                                    <span class="font-semibold">
+                                        {{ $activity->user?->name ?? 'System' }}
+                                    </span>
+
+                                    — {{ $activity->description ?? $activity->action }}
+
+                                </p>
+
+
+                                <p class="mt-1 text-xs text-gray-400">
+
+                                    {{ $activity->created_at->diffForHumans() }}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <div class="p-6 text-sm text-gray-500 dark:text-gray-400">
+
+                            Belum ada log aktivitas pengguna.
+
+                        </div>
+
+                    @endforelse
 
                 </div>
 
             </div>
+        @endif
 
+    </div>
 
-            {{-- Diberikan max-height dan overflow-y-auto agar tidak scroll memanjang ke bawah --}}
-            <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[380px] overflow-y-auto custom-scrollbar">
-
-                @forelse ($dashboard['recentActivities'] as $activity)
-
-                    <div class="flex items-start gap-4 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-
-                        <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-blue-600 bg-blue-100 rounded-full dark:bg-blue-900/30 dark:text-blue-400 text-xs">
-                            📝
-                        </div>
-
-
-                        <div class="flex-1 min-w-0">
-
-                            <p class="text-sm text-gray-900 dark:text-white">
-
-                                <span class="font-semibold">
-                                    {{ $activity->user?->name ?? 'System' }}
-                                </span>
-
-                                — {{ $activity->description ?? $activity->action }}
-
-                            </p>
-
-
-                            <p class="mt-1 text-xs text-gray-400">
-
-                                {{ $activity->created_at->diffForHumans() }}
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                @empty
-
-                    <div class="p-6 text-sm text-gray-500 dark:text-gray-400">
-
-                        Belum ada log aktivitas pengguna.
-
-                    </div>
-
-                @endforelse
-
-            </div>
-
-        </div>
-
+</div>
 
 {{-- CHART.JS --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
