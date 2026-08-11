@@ -99,8 +99,8 @@ Route::middleware(['auth', 'role:Admin,Manajer Gudang'])->group(function () {
     // View Master Supplier
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
 
-    // Produk (View, Detail, & Tambah Produk Baru)
-    Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'show']);
+    // Produk (View, Detail, Tambah Produk Baru, & Edit Produk)
+    Route::resource('products', ProductController::class)->except(['destroy']);
 
     // Pencatatan Transaksi Barang Masuk & Keluar (Halaman Draf & Form Transaksi)
     Route::resource('transactions', StockTransactionController::class)->except(['show']);

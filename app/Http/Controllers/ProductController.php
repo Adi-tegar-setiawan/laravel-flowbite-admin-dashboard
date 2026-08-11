@@ -77,7 +77,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Menyimpan produk.
+     * Menyimpan produk baru dan mencatat stok awal jika ada.
      */
     public function store(Request $request)
     {
@@ -91,17 +91,36 @@ class ProductController extends Controller
             'selling_price' => ['required', 'numeric'],
             'image' => ['nullable', 'image', 'max:2048'],
             'minimum_stock' => ['required', 'integer', 'min:0'],
+            'initial_stock' => ['required', 'integer', 'min:0'], // Validasi Stok Awal
         ]);
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
 
+        // Pisahkan initial_stock agar tidak error saat disimpan ke tabel products
+        $initialStock = $validated['initial_stock'];
+        unset($validated['initial_stock']);
+
+        // Simpan data produk
         $product = $this->productRepository->create($validated);
+
+        // Jika terdapat stok awal > 0, otomatis buatkan transaksi penerimaan stok awal
+        if ($initialStock > 0) {
+            $this->stockTransactionRepository->create([
+                'product_id' => $product->id,
+                'user_id'    => auth()->id(),
+                'type'       => 'Masuk',
+                'quantity'   => $initialStock,
+                'date'       => now()->toDateString(),
+                'status'     => 'Diterima',
+                'notes'      => 'Stok awal pendaftaran produk baru',
+            ]);
+        }
 
         $this->activityLogService->log(
             action: 'created',
-            description: 'Menambahkan produk "' . $product->name . '".',
+            description: 'Menambahkan produk "' . $product->name . '" dengan stok awal ' . $initialStock . '.',
             subjectType: 'Product',
             subjectId: $product->id,
             properties: [
@@ -112,6 +131,7 @@ class ProductController extends Controller
                 'purchase_price' => $product->purchase_price,
                 'selling_price' => $product->selling_price,
                 'minimum_stock' => $product->minimum_stock,
+                'initial_stock' => $initialStock,
             ]
         );
 

@@ -44,34 +44,30 @@ class StockTransactionController extends Controller
     }
 
     /**
-     * Menyimpan transaksi.
+     * Menyimpan transaksi (Input Barang Masuk / Barang Keluar oleh Manajer Gudang).
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_id'  => ['required', 'exists:products,id'],
-            'type'        => ['required', 'in:Masuk,Keluar'],
-            'quantity'    => ['required', 'integer', 'min:1'],
-            'date'        => ['required', 'date'],
-            'status'      => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
-            'notes'       => ['nullable'],
+            'product_id' => ['required', 'exists:products,id'],
+            'type'       => ['required', 'in:Masuk,Keluar'],
+            'quantity'   => ['required', 'integer', 'min:1'],
+            'date'       => ['required', 'date'],
+            'status'     => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
+            'notes'      => ['nullable', 'string'],
         ]);
 
-        if (
-            $validated['type'] === 'Keluar'
-            && $validated['status'] !== 'Dikeluarkan'
-        ) {
+        // Validasi Logis: Barang Masuk tidak boleh diset langsung 'Dikeluarkan'
+        if ($validated['type'] === 'Masuk' && $validated['status'] === 'Dikeluarkan') {
             throw ValidationException::withMessages([
-                'status' => 'Transaksi barang keluar harus memiliki status Dikeluarkan.',
+                'status' => 'Transaksi barang masuk tidak dapat memiliki status Dikeluarkan.',
             ]);
         }
 
-        if (
-            $validated['type'] === 'Masuk'
-            && $validated['status'] === 'Dikeluarkan'
-        ) {
+        // Validasi Logis: Barang Keluar tidak boleh diset 'Diterima'
+        if ($validated['type'] === 'Keluar' && $validated['status'] === 'Diterima') {
             throw ValidationException::withMessages([
-                'status' => 'Transaksi barang masuk tidak dapat memiliki status Dikeluarkan.',
+                'status' => 'Transaksi barang keluar tidak dapat memiliki status Diterima.',
             ]);
         }
 
@@ -81,7 +77,7 @@ class StockTransactionController extends Controller
 
         return redirect()
             ->route('transactions.index')
-            ->with('success', 'Transaksi berhasil disimpan.');
+            ->with('success', 'Transaksi stok berhasil dicatat.');
     }
 
     /**
@@ -102,29 +98,23 @@ class StockTransactionController extends Controller
     public function update(Request $request, int $id)
     {
         $validated = $request->validate([
-            'product_id'  => ['required', 'exists:products,id'],
-            'type'        => ['required', 'in:Masuk,Keluar'],
-            'quantity'    => ['required', 'integer', 'min:1'],
-            'date'        => ['required', 'date'],
-            'status'      => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
-            'notes'       => ['nullable'],
+            'product_id' => ['required', 'exists:products,id'],
+            'type'       => ['required', 'in:Masuk,Keluar'],
+            'quantity'   => ['required', 'integer', 'min:1'],
+            'date'       => ['required', 'date'],
+            'status'     => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
+            'notes'      => ['nullable', 'string'],
         ]);
 
-        if (
-            $validated['type'] === 'Keluar'
-            && $validated['status'] !== 'Dikeluarkan'
-        ) {
+        if ($validated['type'] === 'Masuk' && $validated['status'] === 'Dikeluarkan') {
             throw ValidationException::withMessages([
-                'status' => 'Transaksi barang keluar harus memiliki status Dikeluarkan.',
+                'status' => 'Transaksi barang masuk tidak dapat memiliki status Dikeluarkan.',
             ]);
         }
 
-        if (
-            $validated['type'] === 'Masuk'
-            && $validated['status'] === 'Dikeluarkan'
-        ) {
+        if ($validated['type'] === 'Keluar' && $validated['status'] === 'Diterima') {
             throw ValidationException::withMessages([
-                'status' => 'Transaksi barang masuk tidak dapat memiliki status Dikeluarkan.',
+                'status' => 'Transaksi barang keluar tidak dapat memiliki status Diterima.',
             ]);
         }
 
@@ -132,7 +122,7 @@ class StockTransactionController extends Controller
 
         return redirect()
             ->route('transactions.index')
-            ->with('success', 'Transaksi berhasil diperbarui.');
+            ->with('success', 'Data transaksi berhasil diperbarui.');
     }
 
     /**
@@ -148,7 +138,7 @@ class StockTransactionController extends Controller
     }
 
     /**
-     * Memperbarui status transaksi (Konfirmasi Terima / Konfirmasi Keluar oleh Staff Gudang).
+     * Memperbarui status transaksi (Aksi Konfirmasi oleh Staff Gudang di Dashboard).
      */
     public function updateStatus(Request $request, int $id)
     {
@@ -156,15 +146,12 @@ class StockTransactionController extends Controller
             'status' => ['required', Rule::in(['Pending', 'Diterima', 'Ditolak', 'Dikeluarkan'])],
         ]);
 
-        // Ambil data transaksi menggunakan $this->transactionRepository
         $transaction = $this->transactionRepository->find($id);
 
-        // Update status transaksi melalui repository
         $this->transactionRepository->update($id, [
             'status' => $validated['status'],
         ]);
 
-        // Catat Log Aktivitas
         $this->activityLogService->log(
             action: 'updated_status',
             description: 'Mengonfirmasi status transaksi ' . $transaction->type . ' produk "' . ($transaction->product?->name ?? '-') . '" menjadi ' . $validated['status'] . '.',

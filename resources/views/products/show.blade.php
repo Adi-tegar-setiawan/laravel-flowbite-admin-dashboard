@@ -16,8 +16,8 @@
         </div>
 
         <div class="flex items-center gap-3">
-            {{-- TOMBOL EDIT PRODUK (KHUSUS ADMIN) --}}
-            @if (auth()->user()->role === 'Admin')
+            {{-- TOMBOL EDIT PRODUK (ADMIN & MANAJER GUDANG) --}}
+            @if (in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
                 <a href="{{ route('products.edit', $product->id) }}"
                    class="px-4 py-2 text-sm font-medium text-white bg-amber-500 rounded-lg hover:bg-amber-600 focus:ring-4 focus:ring-amber-300">
                     Edit Produk
@@ -203,7 +203,7 @@
             </h2>
 
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Information tambahan mengenai spesifikasi produk ini.
+                Informasi tambahan mengenai spesifikasi produk ini.
             </p>
 
         </div>
