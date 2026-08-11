@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\StockTransactionService;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
+use App\Repositories\Interfaces\SupplierRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
 use Illuminate\Validation\ValidationException;
 
@@ -13,6 +14,7 @@ class StockTransactionController extends Controller
     public function __construct(
         protected StockTransactionRepositoryInterface $transactionRepository,
         protected ProductRepositoryInterface $productRepository,
+        protected SupplierRepositoryInterface $supplierRepository, // <-- 1. Inject Supplier Repository
         protected StockTransactionService $transactionService
     ) {
     }
@@ -33,8 +35,9 @@ class StockTransactionController extends Controller
     public function create()
     {
         $products = $this->productRepository->all();
+        $suppliers = $this->supplierRepository->all(); // <-- 2. Ambil data Supplier untuk dropdown
 
-        return view('transactions.create', compact('products'));
+        return view('transactions.create', compact('products', 'suppliers'));
     }
 
     /**
@@ -43,12 +46,13 @@ class StockTransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
-            'type' => ['required', 'in:Masuk,Keluar'],
-            'quantity' => ['required', 'integer', 'min:1'],
-            'date' => ['required', 'date'],
-            'status' => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
-            'notes' => ['nullable'],
+            'product_id'  => ['required', 'exists:products,id'],
+            'supplier_id' => ['nullable', 'required_if:type,Masuk', 'exists:suppliers,id'], // <-- 3. Validasi Supplier (Wajib untuk Barang Masuk)
+            'type'        => ['required', 'in:Masuk,Keluar'],
+            'quantity'    => ['required', 'integer', 'min:1'],
+            'date'        => ['required', 'date'],
+            'status'      => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
+            'notes'       => ['nullable'],
         ]);
 
         if (
@@ -71,7 +75,6 @@ class StockTransactionController extends Controller
 
         $validated['user_id'] = auth()->id();
 
-
         $this->transactionService->create($validated);
 
         return redirect()
@@ -86,7 +89,8 @@ class StockTransactionController extends Controller
     {
         return view('transactions.edit', [
             'transaction' => $this->transactionRepository->find($id),
-            'products' => $this->productRepository->all(),
+            'products'    => $this->productRepository->all(),
+            'suppliers'   => $this->supplierRepository->all(), // <-- 4. Kirim data supplier di form edit
         ]);
     }
 
@@ -96,12 +100,13 @@ class StockTransactionController extends Controller
     public function update(Request $request, int $id)
     {
         $validated = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
-            'type' => ['required', 'in:Masuk,Keluar'],
-            'quantity' => ['required', 'integer', 'min:1'],
-            'date' => ['required', 'date'],
-            'status' => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
-            'notes' => ['nullable'],
+            'product_id'  => ['required', 'exists:products,id'],
+            'supplier_id' => ['nullable', 'required_if:type,Masuk', 'exists:suppliers,id'], // <-- 5. Validasi Supplier di update
+            'type'        => ['required', 'in:Masuk,Keluar'],
+            'quantity'    => ['required', 'integer', 'min:1'],
+            'date'        => ['required', 'date'],
+            'status'      => ['required', 'in:Pending,Diterima,Ditolak,Dikeluarkan'],
+            'notes'       => ['nullable'],
         ]);
 
         if (

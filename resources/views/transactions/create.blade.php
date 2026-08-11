@@ -62,9 +62,30 @@
                             id="type"
                             name="type"
                             required
+                            onchange="toggleSupplierField()"
                             class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="Masuk" {{ old('type') == 'Masuk' ? 'selected' : '' }}>Barang Masuk</option>
+                            <option value="Masuk" {{ old('type', 'Masuk') == 'Masuk' ? 'selected' : '' }}>Barang Masuk</option>
                             <option value="Keluar" {{ old('type') == 'Keluar' ? 'selected' : '' }}>Barang Keluar</option>
+                        </select>
+                    </div>
+
+                    {{-- Supplier (Dinamis: Muncul saat Barang Masuk) --}}
+                    <div id="supplier_container">
+                        <label for="supplier_id"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                            Pilih Supplier <span class="text-red-500">*</span>
+                        </label>
+
+                        <select
+                            id="supplier_id"
+                            name="supplier_id"
+                            class="block w-full p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="">-- Pilih Supplier --</option>
+                            @foreach ($suppliers as $supplier)
+                                <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                    {{ $supplier->name }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -148,7 +169,7 @@
 
                     <a
                         href="{{ route('transactions.index') }}"
-                        class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300">
+                        class="px-5 py-2.5 text-sm font-medium text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                         Batal
                     </a>
 
@@ -158,4 +179,25 @@
 
         </div>
     </div>
+
+    {{-- SCRIPT DYNAMIC SUPPLIER DISPLAY --}}
+    <script>
+        function toggleSupplierField() {
+            const type = document.getElementById('type').value;
+            const supplierContainer = document.getElementById('supplier_container');
+            const supplierSelect = document.getElementById('supplier_id');
+
+            if (type === 'Masuk') {
+                supplierContainer.style.display = 'block';
+                supplierSelect.setAttribute('required', 'required');
+            } else {
+                supplierContainer.style.display = 'none';
+                supplierSelect.removeAttribute('required');
+                supplierSelect.value = '';
+            }
+        }
+
+        // Jalankan saat halaman pertama kali dibuka untuk menyesuaikan state awal
+        document.addEventListener('DOMContentLoaded', toggleSupplierField);
+    </script>
 @endsection
