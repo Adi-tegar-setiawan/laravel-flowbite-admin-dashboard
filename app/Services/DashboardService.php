@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
 use App\Services\ActivityLogService;
+use App\Models\StockTransaction;
 
 class DashboardService
 {
@@ -17,6 +18,20 @@ class DashboardService
 
     public function getDashboardData(): array
     {
+        // 1. Data Barang Masuk yang Perlu Diperiksa (Status Pending & Type Masuk)
+        $pendingStockIn = StockTransaction::with(['product.supplier'])
+            ->where('type', 'Masuk')
+            ->where('status', 'Pending')
+            ->latest()
+            ->get();
+
+        // 2. Data Barang Keluar yang Perlu Disiapkan (Status Pending & Type Keluar)
+        $pendingStockOut = StockTransaction::with(['product.supplier'])
+            ->where('type', 'Keluar')
+            ->where('status', 'Pending')
+            ->latest()
+            ->get();
+
         return [
             'totalProducts' => $this->productRepository->count(),
 
@@ -35,6 +50,10 @@ class DashboardService
                 ->getRecentTransactions(5),
 
             'recentActivities' => $this->activityLogService->latest(10),
+
+            // Data Khusus Dashboard Staff Gudang
+            'pendingStockIn'  => $pendingStockIn,
+            'pendingStockOut' => $pendingStockOut,
         ];
     }
 }

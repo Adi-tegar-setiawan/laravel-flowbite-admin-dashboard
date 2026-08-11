@@ -1,12 +1,12 @@
 <x-sidebar-dashboard>
 
-    {{-- DASHBOARD (Semua Role) --}}
+    {{-- 1. DASHBOARD (Semua Role: Admin, Manajer Gudang, Staff Gudang) --}}
     <x-sidebar-menu-dashboard
         routeName="dashboard"
         title="Dashboard"
     />
 
-    {{-- USERS (Hanya Admin) --}}
+    {{-- 2. USERS (Hanya Admin) --}}
     @if(auth()->user()->role === 'Admin')
         <x-sidebar-menu-dashboard
             routeName="users.index"
@@ -14,7 +14,7 @@
         />
     @endif
 
-    {{-- CATEGORIES (Hanya Admin) --}}
+    {{-- 3. CATEGORIES (Hanya Admin) --}}
     @if(auth()->user()->role === 'Admin')
         <x-sidebar-menu-dashboard
             routeName="categories.index"
@@ -22,7 +22,7 @@
         />
     @endif
 
-    {{-- SUPPLIERS (Admin & Manajer Gudang) --}}
+    {{-- 4. SUPPLIERS (Admin & Manajer Gudang) --}}
     @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
         <x-sidebar-menu-dashboard
             routeName="suppliers.index"
@@ -30,7 +30,7 @@
         />
     @endif
 
-    {{-- PRODUCTS (Admin & Manajer Gudang) --}}
+    {{-- 5. PRODUCTS (Admin & Manajer Gudang) --}}
     @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
         <x-sidebar-menu-dashboard
             routeName="products.index"
@@ -38,21 +38,23 @@
         />
     @endif
 
-    {{-- TRANSACTIONS (Semua Role) --}}
-    <x-sidebar-menu-dashboard
-        routeName="transactions.index"
-        title="Transactions"
-    />
+    {{-- 6. TRANSACTIONS (Admin & Manajer Gudang) --}}
+    @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+        <x-sidebar-menu-dashboard
+            routeName="transactions.index"
+            title="Transactions"
+        />
+    @endif
 
-    {{-- STOCK OPNAME (Hanya Admin dan Manajer Gudang) --}}
-    @if(auth()->user()->role === ['Admin', 'Manajer Gudang'])
+    {{-- 7. STOCK OPNAME (Admin & Manajer Gudang) --}}
+    @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
         <x-sidebar-menu-dashboard
             routeName="stock-opnames.index"
             title="Stock Opname"
         />
     @endif
 
-    {{-- ACTIVITY LOG (Hanya Admin) --}}
+    {{-- 8. ACTIVITY LOG (Hanya Admin) --}}
     @if(auth()->user()->role === 'Admin')
         <x-sidebar-menu-dashboard
             routeName="activity-logs.index"
@@ -60,7 +62,7 @@
         />
     @endif
 
-    {{-- LAPORAN / REPORTS (Admin & Manajer Gudang) --}}
+    {{-- 9. LAPORAN / REPORTS (Admin & Manajer Gudang) --}}
     @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
         <x-sidebar-menu-dashboard
             routeName="reports.stock"
@@ -73,7 +75,7 @@
         />
     @endif
 
-    {{-- SETTINGS (Hanya Admin) --}}
+    {{-- 10. SETTINGS (Hanya Admin) --}}
     @if(auth()->user()->role === 'Admin')
         <x-sidebar-menu-dashboard
             routeName="settings.index"

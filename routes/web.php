@@ -75,10 +75,8 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
 
     // Route khusus import & export produk
-    Route::middleware(['auth', 'role:Admin'])->group(function () {
-        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-        Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
-    });
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+    Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
 
     // Route Testing Activity Log
     Route::get('/test-activity-log', function (ActivityLogService $activityLogService) {
@@ -93,16 +91,22 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| 2. ADMIN + MANAJER GUDANG (Input Produk Baru, View Supplier, & Laporan)
+| 2. ADMIN + MANAJER GUDANG (Master Data, Laporan, Input Transaksi & Opname)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Admin,Manajer Gudang'])->group(function () {
 
-    // View Master Supplier (Digunakan saat pencatatan barang masuk)
+    // View Master Supplier
     Route::get('/suppliers', [SupplierController::class, 'index'])->name('suppliers.index');
 
     // Produk (View, Detail, & Tambah Produk Baru)
     Route::resource('products', ProductController::class)->only(['index', 'create', 'store', 'show']);
+
+    // Pencatatan Transaksi Barang Masuk & Keluar (Halaman Draf & Form Transaksi)
+    Route::resource('transactions', StockTransactionController::class)->except(['show']);
+
+    // Stock Opname (Rekonsiliasi & Penyesuaian Stok)
+    Route::resource('stock-opnames', StockOpnameController::class)->except(['show']);
 
     // Laporan Stok & Transaksi
     Route::get('/reports/stock', [ReportController::class, 'stockReport'])->name('reports.stock');
@@ -111,14 +115,12 @@ Route::middleware(['auth', 'role:Admin,Manajer Gudang'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| ADMIN + MANAJER GUDANG + STAFF GUDANG (Operasional Transaksi & Stock Opname)
+| 3. OPERASIONAL STAFF GUDANG & SEMUA ROLE (Aksi Konfirmasi Status Transaksi)
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Admin,Manajer Gudang,Staff Gudang'])->group(function () {
 
-    // Pencatatan Transaksi Barang Masuk & Keluar
-    Route::resource('transactions', StockTransactionController::class)->except(['show']);
-
-    // Stock Opname (Rekonsiliasi & Penyesuaian Stok)
-    Route::resource('stock-opnames', StockOpnameController::class)->except(['show']);
+    // Route Konfirmasi Status Transaksi (Dipakai Staff Gudang di Dashboard)
+    Route::patch('/transactions/{id}/update-status', [StockTransactionController::class, 'updateStatus'])
+        ->name('transactions.update-status');
 });

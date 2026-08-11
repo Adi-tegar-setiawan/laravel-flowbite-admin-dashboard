@@ -2,7 +2,7 @@
     <div class="h-full px-3 py-4 overflow-y-auto bg-white dark:bg-gray-800">
         <ul class="space-y-2 font-medium">
 
-            {{-- 1. DASHBOARD (Semua Role) --}}
+            {{-- 1. DASHBOARD (Semua Role: Admin, Manajer Gudang, Staff Gudang) --}}
             <x-sidebar-menu-dashboard routeName="dashboard" title="Dashboard">
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm9-3a1 1 0 10-2 0v3a1 1 0 00.4.8l2 1.5a1 1 0 001.2-1.6L11 9.4V7z"></path>
@@ -27,7 +27,7 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 4. SUPPLIERS (Admin & Manajer) --}}
+            {{-- 4. SUPPLIERS (Admin & Manajer Gudang) --}}
             @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
                 <x-sidebar-menu-dashboard routeName="suppliers.index" title="Suppliers">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +37,7 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 5. PRODUCTS (Admin & Manajer) --}}
+            {{-- 5. PRODUCTS (Admin & Manajer Gudang) --}}
             @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
                 <x-sidebar-menu-dashboard routeName="products.index" title="Products">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -46,15 +46,17 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 6. TRANSACTIONS (Semua Role) --}}
-            <x-sidebar-menu-dashboard routeName="transactions.index" title="Transactions">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"></path>
-                </svg>
-            </x-sidebar-menu-dashboard>
+            {{-- 6. TRANSACTIONS (Admin & Manajer Gudang) --}}
+            @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+                <x-sidebar-menu-dashboard routeName="transactions.index" title="Transactions">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5a1 1 0 100 2h5.586l-1.293 1.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L13.586 5H8zM12 15a1 1 0 100-2H6.414l1.293-1.293a1 1 0 10-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L6.414 15H12z"></path>
+                    </svg>
+                </x-sidebar-menu-dashboard>
+            @endif
 
-            {{-- 7. STOCK OPNAME (Admin, Manajer Gudang, & Staff Gudang) --}}
-            @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang', 'Staff Gudang']))
+            {{-- 7. STOCK OPNAME (Admin & Manajer Gudang) --}}
+            @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
                 <x-sidebar-menu-dashboard routeName="stock-opnames.index" title="Stock Opname">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
@@ -63,7 +65,7 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 8. ACTIVITY LOG (Hanya Admin) - Sesuai Route: activity-logs.index --}}
+            {{-- 8. ACTIVITY LOG (Hanya Admin) --}}
             @if(auth()->user()->role === 'Admin')
                 <x-sidebar-menu-dashboard routeName="activity-logs.index" title="Activity Log">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -72,7 +74,7 @@
                 </x-sidebar-menu-dashboard>
             @endif
 
-            {{-- 9. LAPORAN STOK & TRANSAKSI (Admin & Manajer) --}}
+            {{-- 9. LAPORAN STOK & TRANSAKSI (Admin & Manajer Gudang) --}}
             @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
                 <x-sidebar-menu-dashboard routeName="reports.stock" title="Laporan Stok">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">

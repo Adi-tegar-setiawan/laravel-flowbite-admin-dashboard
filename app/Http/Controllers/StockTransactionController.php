@@ -7,15 +7,18 @@ use App\Services\StockTransactionService;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Interfaces\SupplierRepositoryInterface;
 use App\Repositories\Interfaces\StockTransactionRepositoryInterface;
+use App\Services\ActivityLogService;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class StockTransactionController extends Controller
 {
     public function __construct(
         protected StockTransactionRepositoryInterface $transactionRepository,
         protected ProductRepositoryInterface $productRepository,
-        protected SupplierRepositoryInterface $supplierRepository, // <-- 1. Inject Supplier Repository
-        protected StockTransactionService $transactionService
+        protected SupplierRepositoryInterface $supplierRepository,
+        protected StockTransactionService $transactionService,
+        protected ActivityLogService $activityLogService
     ) {
     }
 
@@ -35,7 +38,7 @@ class StockTransactionController extends Controller
     public function create()
     {
         $products = $this->productRepository->all();
-        $suppliers = $this->supplierRepository->all(); // <-- 2. Ambil data Supplier untuk dropdown
+        $suppliers = $this->supplierRepository->all();
 
         return view('transactions.create', compact('products', 'suppliers'));
     }
@@ -47,7 +50,6 @@ class StockTransactionController extends Controller
     {
         $validated = $request->validate([
             'product_id'  => ['required', 'exists:products,id'],
-            'supplier_id' => ['nullable', 'required_if:type,Masuk', 'exists:suppliers,id'], // <-- 3. Validasi Supplier (Wajib untuk Barang Masuk)
             'type'        => ['required', 'in:Masuk,Keluar'],
             'quantity'    => ['required', 'integer', 'min:1'],
             'date'        => ['required', 'date'],
@@ -90,7 +92,7 @@ class StockTransactionController extends Controller
         return view('transactions.edit', [
             'transaction' => $this->transactionRepository->find($id),
             'products'    => $this->productRepository->all(),
-            'suppliers'   => $this->supplierRepository->all(), // <-- 4. Kirim data supplier di form edit
+            'suppliers'   => $this->supplierRepository->all(),
         ]);
     }
 
@@ -101,7 +103,6 @@ class StockTransactionController extends Controller
     {
         $validated = $request->validate([
             'product_id'  => ['required', 'exists:products,id'],
-            'supplier_id' => ['nullable', 'required_if:type,Masuk', 'exists:suppliers,id'], // <-- 5. Validasi Supplier di update
             'type'        => ['required', 'in:Masuk,Keluar'],
             'quantity'    => ['required', 'integer', 'min:1'],
             'date'        => ['required', 'date'],
@@ -144,5 +145,39 @@ class StockTransactionController extends Controller
         return redirect()
             ->route('transactions.index')
             ->with('success', 'Transaksi berhasil dihapus.');
+    }
+
+    /**
+     * Memperbarui status transaksi (Konfirmasi Terima / Konfirmasi Keluar oleh Staff Gudang).
+     */
+    public function updateStatus(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['Pending', 'Diterima', 'Ditolak', 'Dikeluarkan'])],
+        ]);
+
+        // Ambil data transaksi menggunakan $this->transactionRepository
+        $transaction = $this->transactionRepository->find($id);
+
+        // Update status transaksi melalui repository
+        $this->transactionRepository->update($id, [
+            'status' => $validated['status'],
+        ]);
+
+        // Catat Log Aktivitas
+        $this->activityLogService->log(
+            action: 'updated_status',
+            description: 'Mengonfirmasi status transaksi ' . $transaction->type . ' produk "' . ($transaction->product?->name ?? '-') . '" menjadi ' . $validated['status'] . '.',
+            subjectType: 'StockTransaction',
+            subjectId: $transaction->id,
+            properties: [
+                'previous_status' => $transaction->status,
+                'new_status'      => $validated['status'],
+            ]
+        );
+
+        return redirect()
+            ->back()
+            ->with('success', 'Status transaksi berhasil dikonfirmasi.');
     }
 }
