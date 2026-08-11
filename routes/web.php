@@ -74,6 +74,12 @@ Route::middleware(['auth', 'role:Admin'])->group(function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/activity-logs/{id}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
 
+    // Route khusus import & export produk
+    Route::middleware(['auth', 'role:Admin'])->group(function () {
+        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+        Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
+    });
+
     // Route Testing Activity Log
     Route::get('/test-activity-log', function (ActivityLogService $activityLogService) {
         $activityLogService->log(

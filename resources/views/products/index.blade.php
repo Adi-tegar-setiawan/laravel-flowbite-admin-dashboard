@@ -3,22 +3,54 @@
 @section('content')
     <div class="p-6">
 
-        {{-- Header & Tombol Tambah --}}
+        {{-- Header & Tombol Aksi --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                Products
-            </h1>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                    Products
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Kelola daftar stok barang dan informasi produk.
+                </p>
+            </div>
 
-            <a href="{{ route('products.create') }}"
-               class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300">
-                + Tambah Produk
-            </a>
+            <div class="flex flex-wrap items-center gap-2">
+                {{-- TOMBOL TAMBAH PRODUK (Muncul untuk Admin & Manajer Gudang) --}}
+                @if(in_array(auth()->user()->role, ['Admin', 'Manajer Gudang']))
+                    <a href="{{ route('products.create') }}"
+                       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300">
+                        + Tambah Produk
+                    </a>
+                @endif
+
+                {{-- TOMBOL IMPORT & EXPORT (KHUSUS ADMIN) --}}
+                @if(auth()->user()->role === 'Admin')
+                    {{-- Tombol Trigger Modal Import --}}
+                    <button type="button" onclick="toggleImportModal(true)"
+                            class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                        📥 Import Produk
+                    </button>
+
+                    {{-- Tombol Export --}}
+                    <a href="{{ route('products.export') }}"
+                       class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+                        📤 Export Produk
+                    </a>
+                @endif
+            </div>
         </div>
 
         {{-- Flash Message Success --}}
         @if (session('success'))
             <div class="p-4 mb-6 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Flash Message Error --}}
+        @if (session('error'))
+            <div class="p-4 mb-6 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400">
+                {{ session('error') }}
             </div>
         @endif
 
@@ -138,7 +170,7 @@
                         {{ $products->withQueryString()->links() }}
                     </div>
                 @else
-                    <p class="text-gray-500">
+                    <p class="text-gray-500 dark:text-gray-400">
                         Belum ada produk.
                     </p>
                 @endif
@@ -147,4 +179,56 @@
         </div>
 
     </div>
+
+    {{-- MODAL IMPORT DATA PRODUK (KHUSUS ADMIN) --}}
+    @if(auth()->user()->role === 'Admin')
+        <div id="importModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+            <div class="relative w-full max-w-md p-4">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-800">
+                    
+                    {{-- Header Modal --}}
+                    <div class="flex items-center justify-between p-4 border-b rounded-t dark:border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            Import Data Produk
+                        </h3>
+                        <button type="button" onclick="toggleImportModal(false)" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-700 dark:hover:text-white">
+                            ✕
+                        </button>
+                    </div>
+                    
+                    {{-- Form Import --}}
+                    <form action="{{ route('products.import') }}" method="POST" enctype="multipart/form-data" class="p-4 md:p-5">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                Pilih File Excel / CSV (.xlsx, .csv)
+                            </label>
+                            <input type="file" name="file" accept=".csv, .xlsx, .xls" required class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">
+                        </div>
+
+                        <div class="flex justify-end gap-2 mt-6">
+                            <button type="button" onclick="toggleImportModal(false)" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                Proses Import
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function toggleImportModal(show) {
+                const modal = document.getElementById('importModal');
+                if (show) {
+                    modal.classList.remove('hidden');
+                } else {
+                    modal.classList.add('hidden');
+                }
+            }
+        </script>
+    @endif
 @endsection

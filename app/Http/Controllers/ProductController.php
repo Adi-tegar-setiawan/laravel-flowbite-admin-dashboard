@@ -11,6 +11,9 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use App\Services\ActivityLogService;
 
+use App\Models\Product;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class ProductController extends Controller
 {
     public function __construct(
@@ -127,6 +130,76 @@ class ProductController extends Controller
             'categories' => $this->categoryRepository->all(),
             'suppliers' => $this->supplierRepository->all(),
         ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,xlsx,xls|max:2048',
+        ]);
+
+        try {
+            Excel::import(new ProductsImport, $request->file('file'));
+
+            return redirect()->route('products.index')->with('success', 'Data produk berhasil diimport!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengimport data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export Data Produk ke CSV (Standard Native PHP)
+     */
+    public function export(): StreamedResponse
+    {
+        $fileName = 'data-produk-' . date('Y-m-d') . '.csv';
+
+        // Ambil data produk dari database/repository
+        $products = Product::with(['category', 'supplier'])->get();
+
+        $headers = [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$fileName\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($products) {
+            $file = fopen('php://output', 'w');
+
+            // Header Kolom CSV
+            fputcsv($file, [
+                'ID',
+                'Nama Produk',
+                'SKU',
+                'Kategori',
+                'Supplier',
+                'Harga Beli',
+                'Harga Jual',
+                'Stok Minimum',
+                'Deskripsi'
+            ]);
+
+            // Isi Data Produk
+            foreach ($products as $product) {
+                fputcsv($file, [
+                    $product->id,
+                    $product->name,
+                    $product->sku,
+                    $product->category?->name ?? '-',
+                    $product->supplier?->name ?? '-',
+                    $product->purchase_price,
+                    $product->selling_price,
+                    $product->minimum_stock,
+                    $product->description,
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     /**
