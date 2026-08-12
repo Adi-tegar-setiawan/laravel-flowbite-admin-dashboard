@@ -20,9 +20,12 @@ class UserController extends Controller
     /**
      * Menampilkan daftar user.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = $this->userRepository->paginate(10);
+        $keyword = $request->get('search');
+        $role = $request->get('role');
+
+        $users = $this->userService->searchUsers($keyword, $role, 10);
 
         return view('users.index', compact('users'));
     }

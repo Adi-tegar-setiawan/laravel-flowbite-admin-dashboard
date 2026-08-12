@@ -51,7 +51,7 @@
                 </p>
 
                 @if(isset($dashboard['pendingStockIn']) && $dashboard['pendingStockIn']->isNotEmpty())
-                    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                         @foreach($dashboard['pendingStockIn'] as $item)
                             <div class="py-3 flex items-center justify-between gap-4">
                                 <div>
@@ -91,7 +91,7 @@
                 </p>
 
                 @if(isset($dashboard['pendingStockOut']) && $dashboard['pendingStockOut']->isNotEmpty())
-                    <div class="divide-y divide-gray-200 dark:divide-gray-700">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                         @foreach($dashboard['pendingStockOut'] as $item)
                             <div class="py-3 flex items-center justify-between gap-4">
                                 <div>
@@ -216,7 +216,7 @@
         <div class="grid grid-cols-1 gap-6 {{ auth()->user()->role === 'Admin' ? 'xl:grid-cols-2' : 'grid-cols-1' }}">
 
             {{-- WIDGET STOK MENIPIS (Manajer Gudang & Admin) --}}
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                 <div class="p-6 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex items-center justify-between">
                         <div>
@@ -232,13 +232,14 @@
                 </div>
 
                 @if (isset($dashboard['lowStockProducts']) && $dashboard['lowStockProducts']->isNotEmpty())
-                    <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @foreach ($dashboard['lowStockProducts']->take(5) as $product)
+                    <div class="divide-y divide-gray-200 dark:divide-gray-700 max-h-[380px] overflow-y-auto custom-scrollbar">
+                        {{-- Menampilkan seluruh daftar produk stok rendah tanpa di-take(5) agar bisa discroll --}}
+                        @foreach ($dashboard['lowStockProducts'] as $product)
                             @php
                                 $currentStock = $product->current_stock ?? $product->stock ?? 0;
                                 $minStock = $product->minimum_stock ?? $product->min_stock ?? 0;
                             @endphp
-                            <div class="flex items-center justify-between p-5">
+                            <div class="flex items-center justify-between p-5 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                 <div>
                                     <p class="font-medium text-gray-900 dark:text-white">{{ $product->name }}</p>
                                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">SKU: {{ $product->sku }}</p>

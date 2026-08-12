@@ -56,4 +56,12 @@ class UserService
 
         });
     }
+
+    /**
+     * Mengambil daftar user dengan pencarian dan filter role.
+     */
+    public function searchUsers(?string $keyword = null, ?string $role = null, int $perPage = 10)
+    {
+        return $this->userRepository->search($keyword, $role, $perPage);
+    }
 }

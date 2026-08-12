@@ -8,6 +8,8 @@ interface UserRepositoryInterface
 
     public function paginate(int $perPage = 10);
 
+    public function search(?string $keyword = null, ?string $role = null, int $perPage = 10);
+
     public function find(int $id);
 
     public function create(array $data);

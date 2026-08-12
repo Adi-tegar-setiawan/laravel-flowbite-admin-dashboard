@@ -34,30 +34,20 @@
             document.documentElement.classList.remove('dark')
         }
     </script>
-    </script>
 
     {{-- CSS KHUSUS PRINT GLOBAL --}}
     <style>
     @media print {
-        /* Sembunyikan semua elemen navigasi, header, sidebar, footer, dan debugbar */
-        nav, 
-        header, 
-        aside, 
-        footer, 
-        .print\:hidden,
-        #phpdebugbar, 
-        .phpdebugbar-minified {
+        nav, header, aside, footer, .print\:hidden, #phpdebugbar, .phpdebugbar-minified {
             display: none !important;
         }
 
-        /* Reset background, margin, dan padding ke kertas putih */
         html, body {
             background-color: #ffffff !important;
             color: #000000 !important;
             background: #ffffff !important;
         }
 
-        /* Paksa area konten agar memenuhi seluruh kertas */
         #main-content {
             margin-left: 0 !important;
             padding: 0 !important;
@@ -78,28 +68,30 @@
 @endphp
 <body class="{{ $whiteBg ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800' }}">
 
-    {{-- NAVBAR (SEMBUNYIKAN SAAT PRINT) --}}
+    {{-- NAVBAR --}}
     <div class="print:hidden">
         <x-navbar-dashboard/>
     </div>
 
-    <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900 print:pt-0 print:bg-white">
+    <div class="flex pt-16 bg-gray-50 dark:bg-gray-900 print:pt-0 print:bg-white min-h-screen">
         
-        {{-- SIDEBAR (SEMBUNYIKAN SAAT PRINT) --}}
+        {{-- SIDEBAR --}}
         <div class="print:hidden">
             <x-sidebar.admin-sidebar/>
         </div>
 
         {{-- MAIN CONTENT --}}
-        <div id="main-content" class="relative w-full h-full overflow-y-auto bg-gray-50 lg:ml-64 dark:bg-gray-900 print:ml-0 print:bg-white print:p-0">
-            <main>
+        <div id="main-content" class="relative w-full min-h-screen flex flex-col justify-between bg-gray-50 lg:ml-64 dark:bg-gray-900 print:ml-0 print:bg-white print:p-0">
+            
+            <main class="mb-auto">
                 @yield('content')
             </main>
 
-            {{-- FOOTER (SEMBUNYIKAN SAAT PRINT) --}}
-            <div class="print:hidden">
+            {{-- FOOTER (Akan selalu berada di paling bawah) --}}
+            <div class="print:hidden border-t border-gray-200 dark:border-gray-800">
                 <x-footer-dashboard/>
             </div>
+
         </div>
 
     </div>
@@ -107,20 +99,17 @@
     <script async defer src="https://buttons.github.io/buttons.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.2/datepicker.min.js"></script>
     <script>
-    // 1. Cek mode tema saat halaman pertama kali dimuat
     if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.documentElement.classList.add('dark');
     } else {
         document.documentElement.classList.remove('dark');
     }
 
-    // 2. Event Handler untuk Tombol Toggle Theme
     document.addEventListener('DOMContentLoaded', function() {
         var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
         var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
         var themeToggleBtn = document.getElementById('theme-toggle');
 
-        // Sesuaikan ikon berdasarkan class 'dark' pada HTML
         if (document.documentElement.classList.contains('dark')) {
             themeToggleLightIcon?.classList.remove('hidden');
         } else {
@@ -129,11 +118,9 @@
 
         if (themeToggleBtn) {
             themeToggleBtn.addEventListener('click', function() {
-                // Toggle ikon matahari / bulan
                 themeToggleDarkIcon?.classList.toggle('hidden');
                 themeToggleLightIcon?.classList.toggle('hidden');
 
-                // Jika tema disimpan di localStorage
                 if (localStorage.getItem('color-theme')) {
                     if (localStorage.getItem('color-theme') === 'light') {
                         document.documentElement.classList.add('dark');
@@ -143,7 +130,6 @@
                         localStorage.setItem('color-theme', 'light');
                     }
                 } else {
-                    // Jika belum ada di localStorage
                     if (document.documentElement.classList.contains('dark')) {
                         document.documentElement.classList.remove('dark');
                         localStorage.setItem('color-theme', 'light');

@@ -17,6 +17,27 @@ class UserRepository implements UserRepositoryInterface
         return User::latest()->paginate($perPage);
     }
 
+    /**
+     * Pencarian pengguna berdasarkan keyword (Nama/Email) & Role.
+     */
+    public function search(?string $keyword = null, ?string $role = null, int $perPage = 10)
+    {
+        $query = User::query();
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($role) {
+            $query->where('role', $role);
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
+
     public function find(int $id)
     {
         return User::findOrFail($id);
