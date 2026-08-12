@@ -25,12 +25,36 @@ class ReportService
     }
 
     /**
-     * Mengambil data laporan stok produk (Filter Kategori & Periode Tanggal).
+     * Mengambil data laporan stok produk (Filter Kategori & Periode Tanggal)
+     * beserta kalkulasi stok fisik berjalan saat ini.
      */
     public function getStockReport(array $filters = [])
     {
-        // Memanggil method getStockReport di ProductRepository
-        return $this->productRepository->getStockReport($filters);
+        // 1. Memanggil method getStockReport di ProductRepository
+        $products = $this->productRepository->getStockReport($filters);
+
+        // 2. Hitung current_stock dinamis dari transaksi (Masuk 'Diterima' - Keluar 'Dikeluarkan')
+        // Jika $products berbentuk LengthAwarePaginator atau Collection
+        if (method_exists($products, 'getCollection')) {
+            $products->getCollection()->transform(function ($product) {
+                $product->current_stock = $this->transactionRepository
+                    ->getCurrentStock($product->id);
+                return $product;
+            });
+        } elseif (method_exists($products, 'transform')) {
+            $products->transform(function ($product) {
+                $product->current_stock = $this->transactionRepository
+                    ->getCurrentStock($product->id);
+                return $product;
+            });
+        } else {
+            foreach ($products as $product) {
+                $product->current_stock = $this->transactionRepository
+                    ->getCurrentStock($product->id);
+            }
+        }
+
+        return $products;
     }
 
     /**
