@@ -26,31 +26,6 @@
 
 ---
 
-## 🛠️ Teknologi & Arsitektur
-
-- **Framework:** [Laravel 10.x / 11.x](https://laravel.com)
-- **Language:** PHP 8.x
-- **Database:** MySQL
-- **Styling & UI:** Tailwind CSS & Flowbite Components
-- **Architecture Pattern:** **Repository Pattern & Service Layer** (Memisahkan bisnis logika, query database, dan layer controller secara bersih dan terstruktur).
-
----
-
-## ⚙️ Panduan Instalasi (Installation Guide)
-
-Ikuti langkah-langkah di bawah ini untuk menjalankan proyek ini di lingkungan lokal Anda:
-
-### 1. Prasyarat (*Prerequisites*)
-- PHP >= 8.1
-- Composer
-- Node.js & NPM
-- MySQL Database
-
-### 2. Kloning Repositori
-```bash
-git clone [https://github.com/username/stockify.git](https://github.com/username/stockify.git)
-cd stockify
-
 ## 🖼️ Tampilan Aplikasi
 
 <p align="center">
@@ -82,3 +57,28 @@ cd stockify
   <br>
   <em>Tampilan fitur untuk laporan</em>
 </p>
+
+## 🛠️ Teknologi & Arsitektur
+
+- **Framework:** [Laravel 10.x / 11.x](https://laravel.com)
+- **Language:** PHP 8.x
+- **Database:** MySQL
+- **Styling & UI:** Tailwind CSS & Flowbite Components
+- **Architecture Pattern:** **Repository Pattern & Service Layer** (Memisahkan bisnis logika, query database, dan layer controller secara bersih dan terstruktur).
+
+---
+
+## ⚙️ Panduan Instalasi (Installation Guide)
+
+Ikuti langkah-langkah di bawah ini untuk menjalankan proyek ini di lingkungan lokal Anda:
+
+### 1. Prasyarat (*Prerequisites*)
+- PHP >= 8.1
+- Composer
+- Node.js & NPM
+- MySQL Database
+
+### 2. Kloning Repositori
+```bash
+git clone [https://github.com/username/stockify.git](https://github.com/username/stockify.git)
+cd stockify
