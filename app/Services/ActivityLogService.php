@@ -12,6 +12,14 @@ class ActivityLogService
     ) {
     }
 
+    /**
+     * Mencari activity log berdasarkan deskripsi dan aksi dengan paginasi.
+     */
+    public function searchLogs(?string $search = null, ?string $action = null, int $perPage = 15)
+    {
+        return $this->repository->search($search, $action, $perPage);
+    }
+
     public function log(
         string $action,
         string $description,

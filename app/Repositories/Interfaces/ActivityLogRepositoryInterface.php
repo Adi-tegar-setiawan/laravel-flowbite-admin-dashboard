@@ -11,4 +11,6 @@ interface ActivityLogRepositoryInterface
     public function create(array $data);
 
     public function find(int $id);
+
+    public function search(?string $search = null, ?string $action = null, int $perPage = 15);
 }

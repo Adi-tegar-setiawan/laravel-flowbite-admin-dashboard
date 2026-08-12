@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ActivityLogService;
+use Illuminate\Http\Request;
 
 class ActivityLogController extends Controller
 {
@@ -12,11 +13,14 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Menampilkan daftar activity log.
+     * Menampilkan daftar activity log dengan pencarian & filter.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $activities = $this->activityLogService->all();
+        $search = $request->get('search');
+        $action = $request->get('action');
+
+        $activities = $this->activityLogService->searchLogs($search, $action, 15);
 
         return view('activity-logs.index', compact('activities'));
     }
