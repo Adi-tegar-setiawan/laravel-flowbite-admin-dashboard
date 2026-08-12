@@ -40,4 +40,18 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return Category::latest()->paginate($perPage);
     }
+
+    public function search(?string $keyword = null, int $perPage = 10)
+    {
+        $query = Category::query();
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
 }

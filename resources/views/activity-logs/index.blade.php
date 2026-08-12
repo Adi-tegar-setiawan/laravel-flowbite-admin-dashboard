@@ -69,7 +69,7 @@
 
         @if ($activities->isNotEmpty())
             {{-- AREA TABEL BER-SCROLLBAR INTERNAL --}}
-            <div class="overflow-x-auto max-h-[420px] overflow-y-auto custom-scrollbar">
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar">
                 <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead class="sticky top-0 z-10 text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
                         <tr>

@@ -17,9 +17,11 @@ class CategoryController extends Controller
     /**
      * Menampilkan daftar kategori.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = $this->categoryRepository->paginate(10);
+        $search = $request->get('search');
+
+        $categories = $this->categoryRepository->search($search, 10);
 
         return view('categories.index', compact('categories'));
     }

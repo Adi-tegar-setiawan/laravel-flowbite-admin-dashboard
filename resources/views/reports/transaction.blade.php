@@ -89,13 +89,13 @@
             <div class="flex gap-2">
                 <button 
                     type="submit" 
-                    class="w-full px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700"
+                    class="w-full px-5 py-2.5 text-sm font-medium text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg dark:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
                 >
                     Filter
                 </button>
                 <a 
                     href="{{ route('reports.transactions') }}" 
-                    class="px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600"
+                    class="px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 transition-colors"
                 >
                     Reset
                 </a>
@@ -103,11 +103,11 @@
         </form>
     </div>
 
-    {{-- TABEL LAPORAN TRANSAKSI --}}
+    {{-- TABEL LAPORAN TRANSAKSI DENGAN SCROLL INTERNAL --}}
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden print:border-none print:shadow-none">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar print:max-h-none print:overflow-visible">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 print:text-black print:w-full">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 print:bg-gray-200 print:text-black">
+                <thead class="sticky top-0 z-10 text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400 print:bg-gray-200 print:text-black print:static">
                     <tr class="print:border-b-2 print:border-black">
                         <th scope="col" class="px-6 py-3 print:px-2 print:py-1">No</th>
                         <th scope="col" class="px-6 py-3 print:px-2 print:py-1">Tanggal</th>
@@ -120,7 +120,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-700 print:divide-gray-300">
                     @forelse ($transactions as $index => $transaction)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 print:border-b print:border-gray-300">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 print:border-b print:border-gray-300 transition-colors">
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white print:text-black print:px-2 print:py-2">
                                 {{ $index + 1 }}
                             </td>

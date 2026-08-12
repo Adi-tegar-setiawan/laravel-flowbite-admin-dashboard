@@ -25,9 +25,15 @@ class StockTransactionController extends Controller
     /**
      * Menampilkan daftar transaksi.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = $this->transactionRepository->paginate(10);
+        $filters = [
+            'search'     => $request->get('search'),
+            'type'       => $request->get('type'),
+            'start_date' => $request->get('start_date'),
+        ];
+
+        $transactions = $this->transactionService->getPaginatedTransactions($filters, 10);
 
         return view('transactions.index', compact('transactions'));
     }

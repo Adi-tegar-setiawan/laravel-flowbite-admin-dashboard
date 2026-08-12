@@ -6,7 +6,7 @@ interface StockTransactionRepositoryInterface
 {
     public function all();
 
-    public function paginate(int $perPage = 10);
+    public function paginate(int $perPage = 10, array $filters = []);
 
     public function find(int $id);
 

@@ -18,6 +18,14 @@ class StockTransactionService
     }
 
     /**
+     * Mengambil daftar transaksi stok berpaginasi beserta filter.
+     */
+    public function getPaginatedTransactions(array $filters = [], int $perPage = 10)
+    {
+        return $this->transactionRepository->paginate($perPage, $filters);
+    }
+
+    /**
      * Membuat transaksi stok baru.
      */
     public function create(array $data)

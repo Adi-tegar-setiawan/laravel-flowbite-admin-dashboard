@@ -44,7 +44,7 @@
 
     {{-- FILTER FORM (HIDDEN SAAT PRINT) --}}
     <div class="p-4 mb-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 print:hidden">
-        <form method="GET" action="{{ route('reports.stock') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <form method="GET" action="{{ route('reports.stock') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             
             {{-- Filter Kategori --}}
             <div>
@@ -73,7 +73,7 @@
 
             {{-- Tombol Submit Filter --}}
             <div class="flex items-end">
-                <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                <button type="submit" class="w-full px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
                     Filter Laporan
                 </button>
             </div>
@@ -81,11 +81,11 @@
         </form>
     </div>
 
-    {{-- TABEL LAPORAN STOK --}}
+    {{-- TABEL LAPORAN STOK DENGAN SCROLL INTERNAL --}}
     <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 overflow-hidden print:border-none print:shadow-none">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar print:max-h-none print:overflow-visible">
             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 print:text-black print:w-full">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 print:bg-gray-200 print:text-black">
+                <thead class="sticky top-0 z-10 text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400 print:bg-gray-200 print:text-black print:static">
                     <tr class="print:border-b-2 print:border-black">
                         <th scope="col" class="px-6 py-3 print:px-2 print:py-1">No</th>
                         <th scope="col" class="px-6 py-3 print:px-2 print:py-1">SKU</th>
@@ -102,7 +102,7 @@
                             $currentStock = $product->current_stock ?? $product->stock ?? 0;
                             $minStock = $product->minimum_stock ?? $product->min_stock ?? 0;
                         @endphp
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 print:border-b print:border-gray-300">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 print:border-b print:border-gray-300 transition-colors">
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white print:text-black print:px-2 print:py-2">
                                 {{ $index + 1 }}
                             </td>

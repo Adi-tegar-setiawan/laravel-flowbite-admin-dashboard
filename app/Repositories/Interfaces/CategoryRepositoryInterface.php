@@ -15,4 +15,6 @@ interface CategoryRepositoryInterface
     public function delete(int $id);
 
     public function paginate(int $perPage = 10);
+
+    public function search(?string $keyword = null, int $perPage = 10);
 }

@@ -31,6 +31,23 @@ class SupplierRepository implements SupplierRepositoryInterface
         return $supplier;
     }
 
+    public function search(?string $keyword = null, int $perPage = 10)
+    {
+        $query = Supplier::query();
+
+        if ($keyword) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                  ->orWhere('email', 'like', "%{$keyword}%")
+                  ->orWhere('phone', 'like', "%{$keyword}%")
+                  ->orWhere('address', 'like', "%{$keyword}%");
+            });
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
+
+    
     public function delete(int $id)
     {
         return $this->find($id)->delete();

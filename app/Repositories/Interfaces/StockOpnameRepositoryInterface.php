@@ -6,7 +6,7 @@ interface StockOpnameRepositoryInterface
 {
     public function all();
 
-    public function paginate(int $perPage = 10);
+    public function paginate(int $perPage = 10, array $filters = []);
 
     public function find(int $id);
 
@@ -15,6 +15,4 @@ interface StockOpnameRepositoryInterface
     public function update(int $id, array $data);
 
     public function delete(int $id);
-
-    public function getByProduct(int $productId);
 }

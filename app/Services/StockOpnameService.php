@@ -18,6 +18,14 @@ class StockOpnameService
     }
 
     /**
+     * Mengambil daftar stock opname berpaginasi beserta filter.
+     */
+    public function getPaginatedOpnames(array $filters = [], int $perPage = 10)
+    {
+        return $this->opnameRepository->paginate($perPage, $filters);
+    }
+
+    /**
      * Membuat stock opname baru.
      */
     public function create(array $data)
@@ -34,8 +42,7 @@ class StockOpnameService
                 ->getCurrentStock($data['product_id']);
 
             // Hitung selisih stok
-            $difference =
-                $data['physical_stock'] - $systemStock;
+            $difference = $data['physical_stock'] - $systemStock;
 
             // Simpan hasil perhitungan
             $data['system_stock'] = $systemStock;
@@ -47,9 +54,7 @@ class StockOpnameService
             // Activity Log
             $this->activityLogService->log(
                 'created',
-                'Membuat stock opname untuk produk "' .
-                $product->name .
-                '"',
+                'Membuat stock opname untuk produk "' . $product->name . '"',
                 'StockOpname',
                 $opname->id,
                 [
@@ -91,27 +96,15 @@ class StockOpnameService
                 $data['product_id']
             );
 
-            /*
-             * Jika produk tidak berubah,
-             * gunakan system_stock lama.
-             */
             if ($opname->product_id == $data['product_id']) {
-
                 $systemStock = $opname->system_stock;
-
             } else {
-
-                /*
-                 * Jika produk diganti,
-                 * ambil stok sistem dari produk baru.
-                 */
                 $systemStock = $this->stockTransactionRepository
                     ->getCurrentStock($data['product_id']);
             }
 
             // Hitung ulang selisih
-            $difference =
-                $data['physical_stock'] - $systemStock;
+            $difference = $data['physical_stock'] - $systemStock;
 
             // Simpan hasil perhitungan
             $data['system_stock'] = $systemStock;
@@ -126,14 +119,11 @@ class StockOpnameService
             // Activity Log
             $this->activityLogService->log(
                 'updated',
-                'Memperbarui stock opname untuk produk "' .
-                $product->name .
-                '"',
+                'Memperbarui stock opname untuk produk "' . $product->name . '"',
                 'StockOpname',
                 $id,
                 [
                     'old' => $oldData,
-
                     'new' => [
                         'product_id' => $updatedOpname->product_id,
                         'system_stock' => $updatedOpname->system_stock,
@@ -180,9 +170,7 @@ class StockOpnameService
             // Activity Log
             $this->activityLogService->log(
                 'deleted',
-                'Menghapus stock opname untuk produk "' .
-                $product->name .
-                '"',
+                'Menghapus stock opname untuk produk "' . $product->name . '"',
                 'StockOpname',
                 $id,
                 $opnameData

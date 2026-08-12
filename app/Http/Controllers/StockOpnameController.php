@@ -20,9 +20,16 @@ class StockOpnameController extends Controller
     /**
      * Menampilkan daftar stock opname.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $opnames = $this->opnameRepository->paginate(10);
+        $filters = [
+            'search'     => $request->get('search'),
+            'start_date' => $request->get('start_date'),
+            'end_date'   => $request->get('end_date'),
+        ];
+
+        // UBAH $this->stockOpnameService MENJADI $this->opnameService
+        $opnames = $this->opnameService->getPaginatedOpnames($filters, 10);
 
         return view('stock-opnames.index', compact('opnames'));
     }

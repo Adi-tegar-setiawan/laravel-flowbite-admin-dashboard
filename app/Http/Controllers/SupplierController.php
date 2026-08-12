@@ -17,9 +17,11 @@ class SupplierController extends Controller
     /**
      * Menampilkan daftar supplier.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = $this->supplierRepository->paginate(10);
+        $search = $request->get('search');
+
+        $suppliers = $this->supplierRepository->search($search, 10);
 
         return view('suppliers.index', compact('suppliers'));
     }
